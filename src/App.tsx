@@ -8,7 +8,7 @@ const App: React.FC = () => {
   return (
     <div className="app-root">
       <Header />
-    <main className="container">
+    <main>
     <Routes>
       <Route path="/" element={<Home />} />
 
