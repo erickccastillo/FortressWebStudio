@@ -9,7 +9,7 @@ const App: React.FC = () => {
   return (
     <div className="app-root">
       <Header />
-    <main>
+    <main className="h-[calc(100vh-80px)] overflow-y-auto custom-scroll">
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
