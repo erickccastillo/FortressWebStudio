@@ -257,17 +257,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* --- FOOTER --- */}
-        <footer className="w-full border-t border-slate-900 bg-[#03050a] py-6 md:py-8 px-4 sm:px-6">
-          <div className="w-full max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-xs md:text-sm text-center md:text-left">
-              © 2026 Erick Alexander Castillo Chavez. All rights reserved.
-            </p>
-            <div className="flex items-center justify-center gap-6 text-slate-500 font-bold text-sm md:text-base">
-              <a href="https://github.com/erickccastillo" className="hover:text-cyan-400 transition-colors">GH</a>
-            </div>
-          </div>
-        </footer>
+     
 
       </div>
     </div>
