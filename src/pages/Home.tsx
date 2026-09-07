@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import miFoto from '../images/photo.png';
 import fondo from '../images/fondo.png';
-
+import Header from "../components/Header";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
