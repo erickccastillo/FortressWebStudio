@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Header() {
   return (
-    <header className="absolute top-0 left-0 w-full z-50">
+    <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-[#050810]/70 border-b border-cyan-900/20">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
         {/* Logo */}
