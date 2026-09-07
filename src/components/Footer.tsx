@@ -46,7 +46,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Línea */}
+        {/* Separador */}
         <div className="my-6 h-px bg-gradient-to-r from-transparent via-slate-800 to-transparent" />
 
         {/* Copyright */}
@@ -61,6 +61,7 @@ export default function Footer() {
           </p>
 
         </div>
+
       </div>
     </footer>
   );
