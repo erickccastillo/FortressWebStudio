@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const App: React.FC = () => {
   return (
@@ -18,7 +19,7 @@ const App: React.FC = () => {
 
 
      </main>
-
+<Footer />
       </div>
 
   );
