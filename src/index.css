@@ -11,14 +11,9 @@ body {
   background-color: #030712; /* Fondo súper oscuro */
   color: white;
   overflow: hidden;
-  height: 100%;
 }
 
- 
-#root {
-height: 100vh;s
-  
-}
+
 
 /* Animación del gafete colgando */
 @keyframes swing {
