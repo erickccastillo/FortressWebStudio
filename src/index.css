@@ -4,6 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+#root {
+  width: 100%;          /* ocupa todo el ancho */
+  height: 100%;         /* ocupa todo el alto */
+  margin: 0;            /* elimina el centrado automático */
+  min-height: 100vh;    /* asegura altura completa */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
 body {
   background-color: #030712; /* Fondo súper oscuro */
   color: white;
