@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden flex flex-col"
+      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative flex flex-col w-full"
     >
       
       {/* Efecto de resplandor de fondo interactivo */}
@@ -44,6 +44,14 @@ export default function Home() {
       <div className="fixed -right-[20%] md:-right-[10%] top-[20%] w-[50%] md:w-[30%] h-[60%] bg-cyan-900/20 rounded-full blur-[80px] md:blur-[130px] pointer-events-none z-0 animate-smoke-right"></div>
 
       <style dangerouslySetInnerHTML={{__html: `
+        /* Forzar el fondo oscuro y eliminar scroll horizontal a nivel global */
+        html, body {
+          background-color: #050810 !important;
+          overflow-x: hidden !important;
+          margin: 0;
+          padding: 0;
+        }
+
         @keyframes swing {
           0% { transform: rotate(3deg); }
           50% { transform: rotate(-3deg); }
@@ -72,7 +80,7 @@ export default function Home() {
         }
       `}} />
 
-      <div className="relative z-10 w-full flex flex-col items-center">
+      <div className="relative z-10 w-full flex flex-col items-center pb-12 md:pb-20">
         
         {/* --- SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[90vh] pt-20 pb-16 px-4 sm:px-6 w-full max-w-[1400px]">
@@ -194,8 +202,7 @@ export default function Home() {
         </section>
 
         {/* --- SECCIÓN EXPERIENCIA --- */}
-        {/* Cambié mb-12 md:mb-20 por pb-20 md:pb-32 para arreglar la barra del fondo */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 pt-12 md:pt-16 pb-20 md:pb-32">
+        <section className="w-full max-w-7xl px-4 sm:px-6 pt-12 md:pt-16">
           <div className="mb-8 md:mb-10">
             <h3 className="flex items-center gap-2 md:gap-3 text-xl sm:text-2xl md:text-3xl font-bold text-white">
               <Briefcase className="text-cyan-400 w-5 h-5 md:w-8 md:h-8" />
