@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden"
+      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative overflow-x-hidden flex flex-col"
     >
       
       {/* Efecto de resplandor de fondo interactivo */}
@@ -98,7 +98,6 @@ export default function Home() {
             <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-3 md:mb-4">
               Welcome to my portfolio
             </p>
-            {/* Tamaños de fuente ajustados para escalar mejor en pantalla */}
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 tracking-tight leading-tight px-2">
               Erick Alexander Castillo
             </h1>
@@ -195,7 +194,8 @@ export default function Home() {
         </section>
 
         {/* --- SECCIÓN EXPERIENCIA --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 py-12 md:py-16 mb-12 md:mb-20">
+        {/* Cambié mb-12 md:mb-20 por pb-20 md:pb-32 para arreglar la barra del fondo */}
+        <section className="w-full max-w-7xl px-4 sm:px-6 pt-12 md:pt-16 pb-20 md:pb-32">
           <div className="mb-8 md:mb-10">
             <h3 className="flex items-center gap-2 md:gap-3 text-xl sm:text-2xl md:text-3xl font-bold text-white">
               <Briefcase className="text-cyan-400 w-5 h-5 md:w-8 md:h-8" />
