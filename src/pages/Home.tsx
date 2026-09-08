@@ -8,7 +8,6 @@ import {
 import miFoto from '../images/photo.png';
 import fondo from '../images/fondo.png';
 
-
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,42 +77,41 @@ export default function Home() {
         {/* --- SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[90vh] pt-20 pb-16 px-4 sm:px-6 w-full max-w-[1400px]">
           
-          <div className="flex flex-col items-center mb-8 md:mb-12 animate-swing origin-top">
-  <div className="w-[1px] h-12 md:h-16 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
-  <div className="relative bg-[#0d1421] border border-cyan-900/40 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_rgba(6,182,212,0.1)] backdrop-blur-md flex flex-col items-center">
-    <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
-      <img 
-        src={miFoto} 
-        alt="Erick Alexander Castillo" 
-        className="w-full h-full object-cover object-center"
-      />
-      <div className="absolute inset-0 border border-cyan-500/30 rounded-xl pointer-events-none"></div>
-    </div>
-    <div className="text-[9px] md:text-[10px] text-cyan-500 tracking-[0.2em] text-center font-mono mt-2 md:mt-3 mb-1 uppercase font-semibold opacity-80">
-      Computer Engineer - 2026
-    </div>
-  </div>
-</div>
+          <div className="flex flex-col items-center mb-8 md:mb-10 animate-swing origin-top">
+            <div className="w-[1px] h-12 md:h-16 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
+            <div className="relative bg-[#0d1421] border border-cyan-900/40 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_rgba(6,182,212,0.1)] backdrop-blur-md flex flex-col items-center">
+              <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
+                <img 
+                  src={miFoto} 
+                  alt="Erick Alexander Castillo" 
+                  className="w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 border border-cyan-500/30 rounded-xl pointer-events-none"></div>
+              </div>
+              <div className="text-[9px] md:text-[10px] text-cyan-500 tracking-[0.2em] text-center font-mono mt-2 md:mt-3 mb-1 uppercase font-semibold opacity-80">
+                Computer Engineer - 2026
+              </div>
+            </div>
+          </div>
 
           <div className="text-center w-full">
             <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-3 md:mb-4">
               Welcome to my portfolio
             </p>
-            {/* Tamaños de fuente fluidos para nombres largos */}
-            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-2 tracking-tight leading-tight px-2">
+            {/* Tamaños de fuente ajustados para escalar mejor en pantalla */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 tracking-tight leading-tight px-2">
               Erick Alexander Castillo
             </h1>
-            <h2 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold text-cyan-400 mb-6 md:mb-8 tracking-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-cyan-400 mb-6 md:mb-8 tracking-tight">
               Full-Stack Developer
             </h2>
             
-            <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-8 md:mb-12 px-4">
+            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-8 md:mb-12 px-4">
               I build atmospheric, high-performance web experiences with React, 
               Node.js and modern AI integrations.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4 w-full sm:w-auto">
-              {/* Botón de LinkedIn */}
               <a
                 href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
                 target="_blank"
@@ -124,7 +122,6 @@ export default function Home() {
                 LinkedIn
               </a>
 
-              {/* Botón de WhatsApp */}
               <a
                 href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
                 target="_blank"
@@ -135,7 +132,6 @@ export default function Home() {
                 WhatsApp
               </a>
 
-              {/* Botón de Email */}
               <a
                 href="mailto:erick.castillodesign@example.com?subject=Contacto%20desde%20tu%20web"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 text-white px-6 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base"
@@ -256,8 +252,6 @@ export default function Home() {
 
           </div>
         </section>
-
-     
 
       </div>
     </div>
