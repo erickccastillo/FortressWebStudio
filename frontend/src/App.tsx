@@ -7,6 +7,11 @@ import Dashboard from './pages/ClientDashboard';
 import NotFound from './pages/NotFound';
 import Header from "./components/Header";
 
+
+
+
+
+
 const App: React.FC = () => {
   return (
     // Agregamos flex y flex-col para que el Header y el Main se acomoden bien
