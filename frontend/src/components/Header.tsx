@@ -1,5 +1,7 @@
 import { LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
+// 1. Importas el logo
+import logo from "../images/logo.png";
 
 export default function Header() {
   return (
@@ -8,8 +10,16 @@ export default function Header() {
         
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-[#0d1421] border border-cyan-900/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)]">
-            <span className="text-cyan-400 font-bold text-lg">F</span>
+          {/* Se añade overflow-hidden para respetar los bordes redondeados */}
+          <div className="w-11 h-11 rounded-xl bg-[#0d1421] border border-cyan-900/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)] overflow-hidden">
+            
+            {/* 2. Reemplazas la letra 'F' por la imagen */}
+            <img 
+              src={logo} 
+              alt="Fortress Web Studio" 
+              className="w-full h-full object-contain p-1.5" 
+            />
+            
           </div>
 
           <div className="flex flex-col">
