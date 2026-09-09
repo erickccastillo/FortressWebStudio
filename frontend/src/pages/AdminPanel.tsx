@@ -99,19 +99,19 @@ export default function AdminPanel() {
 
   const activeProjectsCount = projects.filter(p => p.status !== 'finalizado').length;
 
-  if (loading) return <div className="h-[calc(100vh-80px)] bg-[#050810] flex justify-center items-center"><Loader2 className="animate-spin text-cyan-400" size={40} /></div>;
+  if (loading) return <div className="h-[calc(100vh-80px)] w-full bg-[#050810] flex justify-center items-center"><Loader2 className="animate-spin text-cyan-400" size={40} /></div>;
 
   return (
-    // Se cambió h-screen por h-[calc(100vh-80px)] asumiendo que tu navbar mide aprox 80px.
-    // Si tu navbar es fijo (fixed), deberías agregar un mt-[80px] o pt-[80px] aquí.
-    <div className="h-[calc(100vh-80px)] bg-[#050810] text-slate-300 flex overflow-hidden font-sans">
+    // Altura calculada restando el Navbar. El overflow-hidden evita la barra blanca nativa.
+    <div className="h-[calc(100vh-80px)] w-full flex overflow-hidden bg-[#050810] text-slate-300 font-sans">
       
       {/* Sidebar - Lista de Proyectos */}
-      <aside className="w-96 bg-[#0a0f1c] border-r border-slate-800/60 flex flex-col h-full relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
-        <div className="p-6 pb-2 mt-4">
+      <aside className="w-80 md:w-96 flex-shrink-0 bg-[#0a0f1c] border-r border-slate-800/60 flex flex-col h-full relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+        <div className="p-6 pb-2 border-b border-transparent">
           <h2 className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4 flex items-center gap-2">
             <Activity size={14} /> Resumen General
           </h2>
+          
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="bg-[#111827] rounded-2xl p-4 border border-slate-800/60">
               <p className="text-slate-400 text-xs mb-1">Proyectos Activos</p>
@@ -123,7 +123,7 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative mb-2">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
             <input 
               type="text" 
@@ -135,6 +135,7 @@ export default function AdminPanel() {
           </div>
         </div>
 
+        {/* Scroll interno solo para la lista de proyectos */}
         <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
           {filteredProjects.map((p) => (
             <button
@@ -148,7 +149,7 @@ export default function AdminPanel() {
             >
               <div className="flex justify-between items-start mb-1">
                 <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">{p.name}</h3>
-                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
+                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full flex-shrink-0 ${
                   p.status === 'finalizado' ? 'text-emerald-400 bg-emerald-400/10' : 'text-cyan-400 bg-cyan-400/10'
                 }`}>
                   {p.status}
@@ -164,13 +165,12 @@ export default function AdminPanel() {
       </aside>
 
       {/* Main Content - Detalles del Proyecto */}
-      <main className="flex-1 relative h-full overflow-y-auto pt-6 pb-12">
+      <main className="flex-1 relative h-full overflow-y-auto custom-scrollbar">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none" />
         
-        <div className="p-8 lg:p-12 relative z-10 max-w-6xl mx-auto h-full flex flex-col">
+        <div className="p-8 lg:p-12 relative z-10 max-w-5xl mx-auto flex flex-col min-h-full">
           {selectedProject ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {/* Header del Proyecto */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs text-slate-300 mb-4">
@@ -184,7 +184,6 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Grid de Métricas Financieras */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 p-6 rounded-3xl relative overflow-hidden group hover:border-cyan-900/50 transition-colors">
                   <div className="absolute right-0 top-0 w-32 h-32 bg-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
@@ -211,7 +210,6 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Tareas */}
               <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 rounded-3xl overflow-hidden flex flex-col h-[400px]">
                 <div className="p-6 border-b border-slate-800/60 bg-[#0a0f1c]/50">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -219,7 +217,7 @@ export default function AdminPanel() {
                   </h3>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto p-6 space-y-3">
+                <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
                   {tasks.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
                       <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700">
@@ -234,7 +232,7 @@ export default function AdminPanel() {
                           <div className={`w-2 h-2 rounded-full ${t.status === 'finalizado' ? 'bg-emerald-400' : 'bg-cyan-400'}`} />
                           <span className="text-slate-200 group-hover:text-white transition-colors">{t.description}</span>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border ${
+                        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border flex-shrink-0 ${
                           t.status === "en espera" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
                           t.status === "en curso" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
                           "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -246,17 +244,17 @@ export default function AdminPanel() {
                   )}
                 </div>
 
-                <div className="p-6 border-t border-slate-800/60 bg-[#0a0f1c]/50">
+                <div className="p-5 border-t border-slate-800/60 bg-[#0a0f1c]/50">
                   <form onSubmit={handleAddTask} className="flex gap-3">
                     <input
                       type="text"
                       value={newTaskDesc}
                       onChange={(e) => setNewTaskDesc(e.target.value)}
                       placeholder="Escribe una nueva tarea..."
-                      className="flex-1 bg-[#111827] border border-slate-700/50 rounded-xl px-5 py-3.5 text-sm text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder:text-slate-500"
+                      className="flex-1 bg-[#111827] border border-slate-700/50 rounded-xl px-5 py-3 text-sm text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder:text-slate-500"
                       required
                     />
-                    <button type="submit" className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <button type="submit" className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]">
                       <Plus size={18} /> <span className="hidden sm:inline">Agregar</span>
                     </button>
                   </form>
@@ -264,8 +262,7 @@ export default function AdminPanel() {
               </div>
             </div>
           ) : (
-            // Se ajustó el centrado y el margen superior para que el maletín no choque con el Navbar
-            <div className="flex-1 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500 pb-20">
+            <div className="flex-1 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
               <div className="w-24 h-24 rounded-full bg-cyan-900/20 border border-cyan-900/30 flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(6,182,212,0.1)]">
                 <Briefcase size={40} className="text-cyan-400" />
               </div>
