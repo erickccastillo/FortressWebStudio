@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, 
-  Briefcase, 
-  Users, 
-  ChevronRight,
-  Menu,
-  X,
-  Wallet,
-  Activity,
-  CheckCircle2,
-  Plus,
-  Loader2
+  Search, Briefcase, Users, ChevronRight, Menu, X, 
+  Wallet, Activity, CheckCircle2, Plus, Loader2, PlusCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -32,6 +23,11 @@ interface Task {
   status: string;
 }
 
+interface ClientProfile {
+  id: string;
+  full_name: string;
+}
+
 interface DashboardProps {
   className?: string;
 }
@@ -40,12 +36,24 @@ export default function Dashboard({ className = '' }: DashboardProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Estados funcionales de la API
+  // Estados de Proyectos y Tareas
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Estados del Modal de Nuevo Proyecto
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [clients, setClients] = useState<ClientProfile[]>([]);
+  const [isSubmittingProject, setIsSubmittingProject] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: '',
+    user_id: '',
+    total_budget: 0,
+    payment_percentage: 0,
+    status: 'en espera'
+  });
   
   const navigate = useNavigate();
 
@@ -83,6 +91,49 @@ export default function Dashboard({ className = '' }: DashboardProps) {
       setTasks(data.tasks || []);
     } catch (error) {
       console.error("Error fetching tasks:", error);
+    }
+  };
+
+  // Funciones para el Nuevo Proyecto
+  const openNewProjectModal = async () => {
+    setIsModalOpen(true);
+    const token = localStorage.getItem("supabase_token");
+    try {
+      const res = await fetch("https://fortresswebstudio-backend.onrender.com/api/admin/clients", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setClients(data.clients || []);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
+  const handleCreateProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingProject(true);
+    const token = localStorage.getItem("supabase_token");
+    
+    try {
+      const res = await fetch("https://fortresswebstudio-backend.onrender.com/api/admin/projects", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify(newProject)
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        setProjects([data.project, ...projects]);
+        setIsModalOpen(false);
+        setNewProject({ name: '', user_id: '', total_budget: 0, payment_percentage: 0, status: 'en espera' });
+      }
+    } catch (error) {
+      console.error("Error creating project:", error);
+    } finally {
+      setIsSubmittingProject(false);
     }
   };
 
@@ -130,9 +181,9 @@ export default function Dashboard({ className = '' }: DashboardProps) {
   }
 
   return (
-    // Agregamos pt-[80px] al contenedor principal para que todo baje respetando el Header
     <div className={`flex w-full bg-[#070B14] text-slate-300 font-sans overflow-hidden pt-[80px] ${className || 'h-screen'}`}>
       
+      {/* Overlay Mobile */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity pt-[80px]"
@@ -142,11 +193,12 @@ export default function Dashboard({ className = '' }: DashboardProps) {
 
       <button 
         onClick={toggleSidebar}
-        className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-cyan-600 text-white rounded-full shadow-lg hover:bg-cyan-500 transition-colors"
+        className="lg:hidden fixed bottom-6 right-6 z-40 p-4 bg-cyan-600 text-white rounded-full shadow-lg hover:bg-cyan-500 transition-colors"
       >
         <Menu size={24} />
       </button>
 
+      {/* Sidebar */}
       <aside 
         className={`fixed lg:relative inset-y-0 left-0 z-40 w-80 bg-[#0F1521] border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out pt-[80px] lg:pt-0 ${
           isSidebarOpen ? 'translate-x-0 shadow-2xl shadow-cyan-900/20' : '-translate-x-full lg:translate-x-0'
@@ -158,7 +210,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
           </button>
         </div>
 
-        {/* Separación superior agregada en desktop (lg:mt-4) para estética */}
         <div className="flex-1 overflow-y-auto p-6 lg:mt-4 space-y-8 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           
           <div className="grid grid-cols-2 gap-4">
@@ -166,24 +217,33 @@ export default function Dashboard({ className = '' }: DashboardProps) {
               <span className="text-xs font-semibold text-slate-400 mb-3 tracking-wide">Proyectos Activos</span>
               <span className="text-3xl font-bold text-cyan-400">{activeProjectsCount}</span>
             </div>
-            
             <div className="bg-[#131B29] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
                <span className="text-xs font-semibold text-slate-400 mb-3 tracking-wide">Total Clientes</span>
               <span className="text-3xl font-bold text-white">{totalClientsCount}</span>
             </div>
           </div>
 
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-              <Search size={16} className="text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+          <div className="space-y-4">
+            <button 
+              onClick={openNewProjectModal}
+              className="w-full flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 px-4 rounded-lg transition-all shadow-lg shadow-cyan-900/20"
+            >
+              <PlusCircle size={18} />
+              Nuevo Proyecto
+            </button>
+
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <Search size={16} className="text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+              </div>
+              <input
+                type="text"
+                placeholder="Buscar proyecto o cliente..."
+                className="w-full bg-[#131B29] border border-slate-800/80 text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-slate-200 placeholder-slate-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Buscar proyecto o cliente..."
-              className="w-full bg-[#131B29] border border-slate-800/80 text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-slate-200 placeholder-slate-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
 
           <div className="space-y-1.5">
@@ -216,6 +276,7 @@ export default function Dashboard({ className = '' }: DashboardProps) {
         </div>
       </aside>
 
+      {/* Main Content (Área de Gestión de Proyectos) */}
       <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#070B14] to-[#04060A] relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
         <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 relative min-h-full">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-900/5 rounded-full blur-[150px] pointer-events-none"></div>
@@ -332,6 +393,103 @@ export default function Dashboard({ className = '' }: DashboardProps) {
           )}
         </div>
       </main>
+
+      {/* Modal para Crear Proyecto */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></div>
+          
+          <div className="bg-[#0F1521] border border-slate-800/80 rounded-2xl p-6 md:p-8 w-full max-w-md relative z-10 shadow-2xl animate-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <X size={20} />
+            </button>
+            
+            <h3 className="text-2xl font-bold text-white mb-6">Crear Nuevo Proyecto</h3>
+            
+            <form onSubmit={handleCreateProject} className="space-y-4">
+              <div>
+                <label className="block text-sm text-slate-400 mb-1.5">Nombre del Proyecto</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full bg-[#131B29] border border-slate-700/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500/50 focus:outline-none"
+                  value={newProject.name}
+                  onChange={e => setNewProject({...newProject, name: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-400 mb-1.5">Cliente (Usuario)</label>
+                <select
+                  required
+                  className="w-full bg-[#131B29] border border-slate-700/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500/50 focus:outline-none appearance-none"
+                  value={newProject.user_id}
+                  onChange={e => setNewProject({...newProject, user_id: e.target.value})}
+                >
+                  <option value="" disabled>Selecciona un cliente...</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>
+                      {client.full_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1.5">Presupuesto ($)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    className="w-full bg-[#131B29] border border-slate-700/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500/50 focus:outline-none"
+                    value={newProject.total_budget || ''}
+                    onChange={e => setNewProject({...newProject, total_budget: Number(e.target.value)})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-slate-400 mb-1.5">Anticipo (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    className="w-full bg-[#131B29] border border-slate-700/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500/50 focus:outline-none"
+                    value={newProject.payment_percentage || ''}
+                    onChange={e => setNewProject({...newProject, payment_percentage: Number(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-400 mb-1.5">Estado Inicial</label>
+                <select
+                  className="w-full bg-[#131B29] border border-slate-700/50 rounded-lg px-4 py-2.5 text-white focus:border-cyan-500/50 focus:outline-none appearance-none"
+                  value={newProject.status}
+                  onChange={e => setNewProject({...newProject, status: e.target.value})}
+                >
+                  <option value="en espera">En Espera</option>
+                  <option value="en curso">En Curso</option>
+                  <option value="finalizado">Finalizado</option>
+                </select>
+              </div>
+
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmittingProject}
+                  className="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2"
+                >
+                  {isSubmittingProject ? <Loader2 size={18} className="animate-spin" /> : 'Crear Proyecto'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -154,6 +154,50 @@ app.get('/api/client/dashboard', authenticateUser, async (req, res) => {
   });
 });
 
+
+
+// ==========================================
+// NUEVOS ENDPOINTS PARA CREAR PROYECTOS
+// ==========================================
+
+// Obtener la lista de clientes (perfiles) para el select
+app.get('/api/admin/clients', authenticateUser, async (req, res) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, role')
+    // Opcional: .eq('role', 'client') si manejas roles en la tabla profiles
+    .order('full_name', { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ clients: data });
+});
+
+// Crear un nuevo proyecto
+app.post('/api/admin/projects', authenticateUser, async (req, res) => {
+  const { name, user_id, total_budget, payment_percentage, status } = req.body;
+
+  const { data, error } = await supabase
+    .from('projects')
+    .insert([{ 
+      name, 
+      user_id, 
+      total_budget, 
+      payment_percentage, 
+      status: status || 'en espera',
+      created_at: new Date().toISOString()
+    }])
+    .select(`
+      *,
+      profiles (
+        full_name
+      )
+    `)
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ project: data });
+});
+
 app.listen(port, () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
 });
