@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
   Plus, Activity, Briefcase, Users, Search, 
-  CheckCircle2, Clock, Loader2, LogOut, Wallet
+  CheckCircle2, Loader2, LogOut, Wallet
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logo from "../images/logo.png"; // Asegúrate de ajustar la ruta
