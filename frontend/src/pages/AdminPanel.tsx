@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, ListTodo, ChevronRight, Loader2, LogOut } from "lucide-react";
+import { Plus, ListTodo, Loader2, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 // Tipos basados en tu esquema de base de datos
