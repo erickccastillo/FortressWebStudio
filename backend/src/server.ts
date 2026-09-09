@@ -18,7 +18,28 @@ const supabase = createClient(
 app.use(cors({ origin: '*' })); // Cambiar por tu URL real en producción
 app.use(express.json());
 
-// Endpoint de Login
+// Middleware para verificar el token de Supabase enviado desde el frontend
+const authenticateUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Acceso denegado. Token no proporcionado.' });
+  }
+
+  const { data, error } = await supabase.auth.getUser(token);
+
+  if (error || !data.user) {
+    return res.status(401).json({ error: 'Token inválido o expirado.' });
+  }
+
+  // Guardamos el usuario en res.locals para usarlo en los siguientes endpoints
+  res.locals.user = data.user;
+  next();
+};
+
+// ==========================================
+// ENDPOINT LOGIN (Público)
+// ==========================================
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -41,11 +62,96 @@ app.post('/api/login', async (req, res) => {
     res.json({
       user: authData.user,
       role: profileData.role,
-      session: authData.session // Contiene los tokens de acceso
+      session: authData.session 
     });
   } catch (error) {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
+});
+
+// ==========================================
+// ENDPOINTS ADMIN PANEL (Protegidos)
+// ==========================================
+
+// Obtener todos los proyectos
+app.get('/api/admin/projects', authenticateUser, async (req, res) => {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ projects: data });
+});
+
+// Obtener tareas de un proyecto en específico
+app.get('/api/projects/:id/tasks', authenticateUser, async (req, res) => {
+  const { id } = req.params;
+  
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('project_id', id)
+    .order('creation_date', { ascending: true });
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ tasks: data });
+});
+
+// Crear una nueva tarea
+app.post('/api/tasks', authenticateUser, async (req, res) => {
+  const { project_id, description, status } = req.body;
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert([{ 
+      project_id, 
+      description, 
+      status, 
+      creation_date: new Date().toISOString() 
+    }])
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ task: data });
+});
+
+// ==========================================
+// ENDPOINTS CLIENT DASHBOARD (Protegidos)
+// ==========================================
+
+// Obtener los datos y tareas del cliente logueado
+app.get('/api/client/dashboard', authenticateUser, async (req, res) => {
+  const user = res.locals.user;
+
+  // 1. Buscar el proyecto asociado al ID del usuario logueado
+  const { data: project, error: projectError } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('user_id', user.id)
+    .single();
+
+  if (projectError || !project) {
+    return res.status(404).json({ error: 'No se encontró un proyecto asignado a este cliente.' });
+  }
+
+  // 2. Buscar las tareas asociadas a ese proyecto
+  const { data: tasks, error: tasksError } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('project_id', project.id)
+    .order('creation_date', { ascending: true });
+
+  if (tasksError) {
+    return res.status(500).json({ error: tasksError.message });
+  }
+
+  // 3. Retornar la estructura que espera el frontend
+  res.json({
+    project,
+    tasks: tasks || []
+  });
 });
 
 app.listen(port, () => {
