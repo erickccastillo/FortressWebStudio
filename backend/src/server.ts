@@ -15,7 +15,7 @@ const supabase = createClient(
 );
 
 // Middleware
-app.use(cors({ origin: 'URL_DE_TU_FRONTEND' })); // Cambiar por tu URL real en producción
+app.use(cors({ origin: 'https://fortresswebstudio.onrender.com' })); // Cambiar por tu URL real en producción
 app.use(express.json());
 
 // Endpoint de Login
