@@ -155,12 +155,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Icono de scroll (Oculto en móviles muy pequeños) */}
-        <div className="justify-center pb-12 md:pb-20 w-full hidden sm:flex">
-          <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
-              <div className="w-1.5 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
-          </div>
-        </div>
+        {/* Icono de scroll (Visible en todas las pantallas) */}
+<div className="flex justify-center pb-12 md:pb-20 w-full">
+  <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
+      <div className="w-1.5 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
+  </div>
+</div>
 
         {/* --- SECCIÓN SOBRE MÍ --- */}
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
