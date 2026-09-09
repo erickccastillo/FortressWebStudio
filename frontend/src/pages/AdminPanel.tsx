@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { 
   Plus, Activity, Briefcase, Users, Search, 
-  CheckCircle2, Loader2, LogOut, Wallet
+  CheckCircle2, Loader2, Wallet
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import logo from "../images/logo.png"; // Asegúrate de ajustar la ruta
 
 interface Project {
   id: string;
@@ -13,7 +12,7 @@ interface Project {
   payment_percentage: number;
   total_budget: number;
   profiles?: {
-    full_name: string; // Asumiendo que agregas full_name a tu tabla profiles
+    full_name: string;
   };
 }
 
@@ -93,11 +92,6 @@ export default function AdminPanel() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("supabase_token");
-    navigate("/");
-  };
-
   const filteredProjects = projects.filter(p => 
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     p.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -105,26 +99,16 @@ export default function AdminPanel() {
 
   const activeProjectsCount = projects.filter(p => p.status !== 'finalizado').length;
 
-  if (loading) return <div className="min-h-screen bg-[#050810] flex justify-center items-center"><Loader2 className="animate-spin text-cyan-400" size={40} /></div>;
+  if (loading) return <div className="h-[calc(100vh-80px)] bg-[#050810] flex justify-center items-center"><Loader2 className="animate-spin text-cyan-400" size={40} /></div>;
 
   return (
-    <div className="min-h-screen bg-[#050810] text-slate-300 flex overflow-hidden font-sans">
+    // Se cambió h-screen por h-[calc(100vh-80px)] asumiendo que tu navbar mide aprox 80px.
+    // Si tu navbar es fijo (fixed), deberías agregar un mt-[80px] o pt-[80px] aquí.
+    <div className="h-[calc(100vh-80px)] bg-[#050810] text-slate-300 flex overflow-hidden font-sans">
       
       {/* Sidebar - Lista de Proyectos */}
-      <aside className="w-96 bg-[#0a0f1c] border-r border-slate-800/60 flex flex-col h-screen relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
-        <div className="p-6 border-b border-slate-800/60 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#121b29] rounded-xl border border-cyan-900/50 flex items-center justify-center p-1.5">
-              <img src={logo} alt="Logo" className="w-full h-full object-contain" />
-            </div>
-            <h1 className="font-bold text-white text-lg tracking-wide">FWS Admin</h1>
-          </div>
-          <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 transition-colors">
-            <LogOut size={20} />
-          </button>
-        </div>
-
-        <div className="p-6 pb-2">
+      <aside className="w-96 bg-[#0a0f1c] border-r border-slate-800/60 flex flex-col h-full relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+        <div className="p-6 pb-2 mt-4">
           <h2 className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4 flex items-center gap-2">
             <Activity size={14} /> Resumen General
           </h2>
@@ -180,10 +164,10 @@ export default function AdminPanel() {
       </aside>
 
       {/* Main Content - Detalles del Proyecto */}
-      <main className="flex-1 relative h-screen overflow-y-auto">
+      <main className="flex-1 relative h-full overflow-y-auto pt-6 pb-12">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none" />
         
-        <div className="p-8 lg:p-12 relative z-10 max-w-6xl mx-auto">
+        <div className="p-8 lg:p-12 relative z-10 max-w-6xl mx-auto h-full flex flex-col">
           {selectedProject ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               {/* Header del Proyecto */}
@@ -228,7 +212,7 @@ export default function AdminPanel() {
               </div>
 
               {/* Tareas */}
-              <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 rounded-3xl overflow-hidden flex flex-col h-[500px]">
+              <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 rounded-3xl overflow-hidden flex flex-col h-[400px]">
                 <div className="p-6 border-b border-slate-800/60 bg-[#0a0f1c]/50">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
                     <Activity size={20} className="text-cyan-400" /> Control de Tareas
@@ -280,7 +264,8 @@ export default function AdminPanel() {
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+            // Se ajustó el centrado y el margen superior para que el maletín no choque con el Navbar
+            <div className="flex-1 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500 pb-20">
               <div className="w-24 h-24 rounded-full bg-cyan-900/20 border border-cyan-900/30 flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(6,182,212,0.1)]">
                 <Briefcase size={40} className="text-cyan-400" />
               </div>
@@ -293,7 +278,6 @@ export default function AdminPanel() {
         </div>
       </main>
       
-      {/* Estilos globales requeridos para animaciones */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes shimmer {
           100% { transform: translateX(100%); }
