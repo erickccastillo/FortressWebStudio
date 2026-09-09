@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Admin from './pages/AdminPanel';
+import Dashboard from './pages/ClientDashboard';
 import NotFound from './pages/NotFound';
 import Header from "./components/Header";
 
@@ -16,6 +18,8 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/adminpanel" element={<Admin />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

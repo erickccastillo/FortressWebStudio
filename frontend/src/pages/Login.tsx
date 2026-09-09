@@ -39,9 +39,9 @@ export default function Login() {
 
       // Redirección basada en el rol que devuelve tu backend
       if (data.role === "admin") {
-        navigate("/admin-panel");
+        navigate("/adminpanel");
       } else {
-        navigate("/client-dashboard");
+        navigate("/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión. Verifica tus credenciales.");
