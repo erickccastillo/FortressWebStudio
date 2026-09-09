@@ -33,7 +33,6 @@ interface Task {
 }
 
 interface DashboardProps {
-  /** Permite inyectar clases de Tailwind desde el componente padre (ej: h-[calc(100vh-80px)]) */
   className?: string;
 }
 
@@ -50,7 +49,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
   
   const navigate = useNavigate();
 
-  // Cargar proyectos al montar el componente
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -74,7 +72,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
 
   const loadProjectTasks = async (project: Project) => {
     setSelectedProject(project);
-    // Cerrar sidebar en móvil al seleccionar un proyecto
     if (window.innerWidth < 1024) setIsSidebarOpen(false);
     
     const token = localStorage.getItem("supabase_token");
@@ -114,7 +111,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
     }
   };
 
-  // Filtros y estadísticas en tiempo real
   const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     project.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -127,24 +123,23 @@ export default function Dashboard({ className = '' }: DashboardProps) {
 
   if (loading) {
     return (
-      <div className={`flex items-center justify-center bg-[#070B14] w-full ${className || 'h-screen'}`}>
+      <div className={`flex items-center justify-center bg-[#070B14] w-full pt-[80px] ${className || 'h-screen'}`}>
         <Loader2 className="animate-spin text-cyan-400" size={40} />
       </div>
     );
   }
 
   return (
-    <div className={`flex w-full bg-[#070B14] text-slate-300 font-sans overflow-hidden ${className || 'h-screen'}`}>
+    // Agregamos pt-[80px] al contenedor principal para que todo baje respetando el Header
+    <div className={`flex w-full bg-[#070B14] text-slate-300 font-sans overflow-hidden pt-[80px] ${className || 'h-screen'}`}>
       
-      {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity pt-[80px]"
           onClick={toggleSidebar}
         />
       )}
 
-      {/* Botón flotante para abrir sidebar en móvil */}
       <button 
         onClick={toggleSidebar}
         className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-cyan-600 text-white rounded-full shadow-lg hover:bg-cyan-500 transition-colors"
@@ -152,9 +147,8 @@ export default function Dashboard({ className = '' }: DashboardProps) {
         <Menu size={24} />
       </button>
 
-      {/* Sidebar */}
       <aside 
-        className={`fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-[#0F1521] border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out ${
+        className={`fixed lg:relative inset-y-0 left-0 z-40 w-80 bg-[#0F1521] border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out pt-[80px] lg:pt-0 ${
           isSidebarOpen ? 'translate-x-0 shadow-2xl shadow-cyan-900/20' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -164,9 +158,9 @@ export default function Dashboard({ className = '' }: DashboardProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        {/* Separación superior agregada en desktop (lg:mt-4) para estética */}
+        <div className="flex-1 overflow-y-auto p-6 lg:mt-4 space-y-8 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           
-          {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-[#131B29] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
               <span className="text-xs font-semibold text-slate-400 mb-3 tracking-wide">Proyectos Activos</span>
@@ -179,7 +173,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
             </div>
           </div>
 
-          {/* Search Input */}
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
               <Search size={16} className="text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
@@ -193,7 +186,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
             />
           </div>
 
-          {/* Project List */}
           <div className="space-y-1.5">
              {filteredProjects.length > 0 ? (
                filteredProjects.map((project) => (
@@ -224,21 +216,14 @@ export default function Dashboard({ className = '' }: DashboardProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#070B14] to-[#04060A] relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
-        
-        {/* Dynamic Content Area */}
         <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 relative min-h-full">
-          
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-900/5 rounded-full blur-[150px] pointer-events-none"></div>
 
           {selectedProject ? (
              <div className="w-full max-w-5xl animate-in fade-in zoom-in-95 duration-300 relative z-10 my-auto">
-               
-               {/* Contenedor principal del Proyecto */}
                <div className="bg-[#0F1521]/80 backdrop-blur-sm rounded-2xl border border-slate-800/80 p-6 lg:p-8 shadow-2xl">
                  
-                 {/* Header del Proyecto */}
                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
                    <div>
                      <h2 className="text-3xl font-bold text-white mb-2">
@@ -258,7 +243,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
                    </span>
                  </div>
 
-                 {/* Finanzas */}
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                     <div className="bg-[#131B29] border border-slate-800/60 p-5 rounded-xl flex items-center justify-between">
                       <div>
@@ -278,7 +262,6 @@ export default function Dashboard({ className = '' }: DashboardProps) {
                     </div>
                  </div>
                  
-                 {/* Gestor de Tareas integrado */}
                  <div className="border border-slate-800/80 rounded-xl flex flex-col h-[400px] bg-[#131B29]/30">
                     <div className="p-4 border-b border-slate-800/80 bg-[#131B29]/50">
                       <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -324,11 +307,9 @@ export default function Dashboard({ className = '' }: DashboardProps) {
                       </form>
                     </div>
                  </div>
-
                </div>
              </div>
           ) : (
-            /* Estado inicial - Empty State */
             <div className="max-w-xl text-center space-y-6 relative z-10 animate-in fade-in duration-700">
               <div className="relative mx-auto w-24 h-24 mb-10 flex items-center justify-center">
                 <div className="absolute inset-0 border border-slate-700/50 rounded-full scale-[1.3] opacity-30"></div>
