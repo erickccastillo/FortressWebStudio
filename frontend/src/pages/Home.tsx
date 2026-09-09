@@ -145,7 +145,7 @@ export default function Home() {
               </a>
 
               <a
-                href="mailto:erick.castillodesign@example.com?subject=Contacto%20desde%20tu%20web"
+                href="mailto:erick.castillodesign@gmail.com?subject=Contacto%20desde%20tu%20web"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 hover:bg-[#151e2f] text-white px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base hover:-translate-y-1"
               >
                 <Mail size={18} className="md:w-[20px] md:h-[20px]" />
