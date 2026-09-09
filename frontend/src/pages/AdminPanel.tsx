@@ -1,9 +1,18 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { 
-  Plus, Activity, Briefcase, Users, Search, 
-  CheckCircle2, Loader2, Wallet
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+  Search, 
+  Briefcase, 
+  Users, 
+  ChevronRight,
+  Menu,
+  X,
+  Wallet,
+  Activity,
+  CheckCircle2,
+  Plus,
+  Loader2
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -23,15 +32,25 @@ interface Task {
   status: string;
 }
 
-export default function AdminPanel() {
+interface DashboardProps {
+  /** Permite inyectar clases de Tailwind desde el componente padre (ej: h-[calc(100vh-80px)]) */
+  className?: string;
+}
+
+export default function Dashboard({ className = '' }: DashboardProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Estados funcionales de la API
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskDesc, setNewTaskDesc] = useState("");
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  
   const navigate = useNavigate();
 
+  // Cargar proyectos al montar el componente
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -55,6 +74,9 @@ export default function AdminPanel() {
 
   const loadProjectTasks = async (project: Project) => {
     setSelectedProject(project);
+    // Cerrar sidebar en móvil al seleccionar un proyecto
+    if (window.innerWidth < 1024) setIsSidebarOpen(false);
+    
     const token = localStorage.getItem("supabase_token");
     try {
       const res = await fetch(`https://fortresswebstudio-backend.onrender.com/api/projects/${project.id}/tasks`, {
@@ -92,207 +114,243 @@ export default function AdminPanel() {
     }
   };
 
-  const filteredProjects = projects.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filtros y estadísticas en tiempo real
+  const filteredProjects = projects.filter(project => 
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    project.profiles?.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const activeProjectsCount = projects.filter(p => p.status !== 'finalizado').length;
+  const totalClientsCount = projects.length;
 
-  if (loading) return <div className="h-[calc(100vh-80px)] w-full bg-[#050810] flex justify-center items-center"><Loader2 className="animate-spin text-cyan-400" size={40} /></div>;
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  if (loading) {
+    return (
+      <div className={`flex items-center justify-center bg-[#070B14] w-full ${className || 'h-screen'}`}>
+        <Loader2 className="animate-spin text-cyan-400" size={40} />
+      </div>
+    );
+  }
 
   return (
-    // Altura calculada restando el Navbar. El overflow-hidden evita la barra blanca nativa.
-    <div className="h-[calc(100vh-80px)] w-full flex overflow-hidden bg-[#050810] text-slate-300 font-sans">
+    <div className={`flex w-full bg-[#070B14] text-slate-300 font-sans overflow-hidden ${className || 'h-screen'}`}>
       
-      {/* Sidebar - Lista de Proyectos */}
-      <aside className="w-80 md:w-96 flex-shrink-0 bg-[#0a0f1c] border-r border-slate-800/60 flex flex-col h-full relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
-        <div className="p-6 pb-2 border-b border-transparent">
-          <h2 className="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-4 flex items-center gap-2">
-            <Activity size={14} /> Resumen General
-          </h2>
-          
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-[#111827] rounded-2xl p-4 border border-slate-800/60">
-              <p className="text-slate-400 text-xs mb-1">Proyectos Activos</p>
-              <p className="text-2xl font-bold text-cyan-400">{activeProjectsCount}</p>
-            </div>
-            <div className="bg-[#111827] rounded-2xl p-4 border border-slate-800/60">
-              <p className="text-slate-400 text-xs mb-1">Total Clientes</p>
-              <p className="text-2xl font-bold text-white">{projects.length}</p>
-            </div>
-          </div>
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={toggleSidebar}
+        />
+      )}
 
-          <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-            <input 
-              type="text" 
-              placeholder="Buscar proyecto o cliente..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#111827] border border-slate-700/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
-            />
-          </div>
+      {/* Botón flotante para abrir sidebar en móvil */}
+      <button 
+        onClick={toggleSidebar}
+        className="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-cyan-600 text-white rounded-full shadow-lg hover:bg-cyan-500 transition-colors"
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Sidebar */}
+      <aside 
+        className={`fixed lg:relative inset-y-0 left-0 z-50 w-80 bg-[#0F1521] border-r border-slate-800/80 flex flex-col transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0 shadow-2xl shadow-cyan-900/20' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        <div className="lg:hidden flex items-center justify-end p-4 border-b border-slate-800/50">
+          <button onClick={toggleSidebar} className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800">
+            <X size={20} />
+          </button>
         </div>
 
-        {/* Scroll interno solo para la lista de proyectos */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-          {filteredProjects.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => loadProjectTasks(p)}
-              className={`w-full text-left p-4 rounded-2xl transition-all duration-300 group ${
-                selectedProject?.id === p.id 
-                  ? "bg-gradient-to-r from-cyan-900/40 to-transparent border-l-2 border-cyan-400" 
-                  : "bg-transparent hover:bg-[#111827] border-l-2 border-transparent"
-              }`}
-            >
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">{p.name}</h3>
-                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full flex-shrink-0 ${
-                  p.status === 'finalizado' ? 'text-emerald-400 bg-emerald-400/10' : 'text-cyan-400 bg-cyan-400/10'
-                }`}>
-                  {p.status}
-                </span>
-              </div>
-              <p className="text-sm text-slate-400 flex items-center gap-1.5">
-                <Users size={12} /> 
-                {p.profiles?.full_name || "Cliente sin nombre"}
-              </p>
-            </button>
-          ))}
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+          
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-[#131B29] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+              <span className="text-xs font-semibold text-slate-400 mb-3 tracking-wide">Proyectos Activos</span>
+              <span className="text-3xl font-bold text-cyan-400">{activeProjectsCount}</span>
+            </div>
+            
+            <div className="bg-[#131B29] border border-slate-800/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+               <span className="text-xs font-semibold text-slate-400 mb-3 tracking-wide">Total Clientes</span>
+              <span className="text-3xl font-bold text-white">{totalClientsCount}</span>
+            </div>
+          </div>
+
+          {/* Search Input */}
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <Search size={16} className="text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="Buscar proyecto o cliente..."
+              className="w-full bg-[#131B29] border border-slate-800/80 text-sm rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-slate-200 placeholder-slate-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {/* Project List */}
+          <div className="space-y-1.5">
+             {filteredProjects.length > 0 ? (
+               filteredProjects.map((project) => (
+                 <button
+                   key={project.id}
+                   onClick={() => loadProjectTasks(project)}
+                   className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center justify-between group ${
+                     selectedProject?.id === project.id 
+                       ? 'bg-cyan-500/10 border-l-2 border-cyan-400 text-white' 
+                       : 'hover:bg-[#131B29] text-slate-400 hover:text-slate-200 border-l-2 border-transparent'
+                   }`}
+                 >
+                   <div className="pr-4">
+                     <p className="font-medium truncate text-sm leading-tight mb-1">{project.name}</p>
+                     <p className={`text-xs ${selectedProject?.id === project.id ? 'text-cyan-300' : 'text-slate-500'}`}>
+                       {project.profiles?.full_name || "Sin cliente asignado"}
+                     </p>
+                   </div>
+                   <ChevronRight size={16} className={`shrink-0 transition-transform ${selectedProject?.id === project.id ? 'text-cyan-400 translate-x-0' : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'}`} />
+                 </button>
+               ))
+             ) : (
+               <div className="text-center py-8 text-slate-500 text-sm border border-dashed border-slate-800 rounded-lg">
+                 No se encontraron resultados
+               </div>
+             )}
+          </div>
         </div>
       </aside>
 
-      {/* Main Content - Detalles del Proyecto */}
-      <main className="flex-1 relative h-full overflow-y-auto custom-scrollbar">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none" />
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#070B14] to-[#04060A] relative overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
         
-        <div className="p-8 lg:p-12 relative z-10 max-w-5xl mx-auto flex flex-col min-h-full">
+        {/* Dynamic Content Area */}
+        <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-10 relative min-h-full">
+          
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-cyan-900/5 rounded-full blur-[150px] pointer-events-none"></div>
+
           {selectedProject ? (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs text-slate-300 mb-4">
-                    <Briefcase size={14} className="text-cyan-400" /> Vista de Gestión
-                  </div>
-                  <h2 className="text-4xl font-bold text-white mb-2">{selectedProject.name}</h2>
-                  <p className="text-lg text-slate-400 flex items-center gap-2">
-                    <Users className="text-slate-500" size={18} />
-                    Cliente: <span className="text-white font-medium">{selectedProject.profiles?.full_name || "Desconocido"}</span>
-                  </p>
-                </div>
-              </div>
+             <div className="w-full max-w-5xl animate-in fade-in zoom-in-95 duration-300 relative z-10 my-auto">
+               
+               {/* Contenedor principal del Proyecto */}
+               <div className="bg-[#0F1521]/80 backdrop-blur-sm rounded-2xl border border-slate-800/80 p-6 lg:p-8 shadow-2xl">
+                 
+                 {/* Header del Proyecto */}
+                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8">
+                   <div>
+                     <h2 className="text-3xl font-bold text-white mb-2">
+                       {selectedProject.name}
+                     </h2>
+                     <div className="flex items-center gap-2 text-cyan-400 font-medium">
+                        <Users size={16} />
+                        <span>{selectedProject.profiles?.full_name || "Desconocido"}</span>
+                     </div>
+                   </div>
+                   <span className={`px-3 py-1 text-xs font-semibold rounded-full border uppercase tracking-wider ${
+                     selectedProject.status === 'finalizado' 
+                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                      : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                   }`}>
+                     {selectedProject.status}
+                   </span>
+                 </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 p-6 rounded-3xl relative overflow-hidden group hover:border-cyan-900/50 transition-colors">
-                  <div className="absolute right-0 top-0 w-32 h-32 bg-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-slate-400 text-sm font-medium">Presupuesto Total</p>
-                    <Wallet className="text-cyan-400/50 group-hover:text-cyan-400 transition-colors" size={20} />
-                  </div>
-                  <p className="text-3xl font-bold text-white">${selectedProject.total_budget}</p>
-                </div>
-
-                <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 p-6 rounded-3xl relative overflow-hidden group hover:border-cyan-900/50 transition-colors">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-slate-400 text-sm font-medium">Estado de Pago</p>
-                    <span className="text-2xl font-bold text-cyan-400">{selectedProject.payment_percentage}%</span>
-                  </div>
-                  <div className="w-full bg-[#111827] h-3 rounded-full overflow-hidden border border-slate-800">
-                    <div 
-                      className="bg-gradient-to-r from-cyan-600 to-cyan-400 h-full rounded-full relative" 
-                      style={{ width: `${selectedProject.payment_percentage}%` }}
-                    >
-                      <div className="absolute inset-0 bg-white/20 w-full animate-[shimmer_2s_infinite]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-slate-800/60 rounded-3xl overflow-hidden flex flex-col h-[400px]">
-                <div className="p-6 border-b border-slate-800/60 bg-[#0a0f1c]/50">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <Activity size={20} className="text-cyan-400" /> Control de Tareas
-                  </h3>
-                </div>
-                
-                <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
-                  {tasks.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700">
-                        <CheckCircle2 size={32} className="opacity-50" />
+                 {/* Finanzas */}
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <div className="bg-[#131B29] border border-slate-800/60 p-5 rounded-xl flex items-center justify-between">
+                      <div>
+                        <p className="text-slate-400 text-sm mb-1">Presupuesto Total</p>
+                        <p className="text-2xl font-bold text-white">${selectedProject.total_budget}</p>
                       </div>
-                      <p>No hay tareas registradas para este proyecto.</p>
+                      <Wallet className="text-slate-600" size={28} />
                     </div>
-                  ) : (
-                    tasks.map(t => (
-                      <div key={t.id} className="group flex items-center justify-between p-4 bg-[#111827] rounded-2xl border border-slate-800/60 hover:border-cyan-900/50 transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.05)]">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-2 h-2 rounded-full ${t.status === 'finalizado' ? 'bg-emerald-400' : 'bg-cyan-400'}`} />
-                          <span className="text-slate-200 group-hover:text-white transition-colors">{t.description}</span>
+                    <div className="bg-[#131B29] border border-slate-800/60 p-5 rounded-xl">
+                      <div className="flex justify-between items-end mb-2">
+                        <p className="text-slate-400 text-sm">Estado de Pago</p>
+                        <span className="text-xl font-bold text-cyan-400">{selectedProject.payment_percentage}%</span>
+                      </div>
+                      <div className="w-full bg-[#0a0f1c] h-2 rounded-full overflow-hidden">
+                        <div className="bg-cyan-400 h-full rounded-full transition-all duration-1000" style={{ width: `${selectedProject.payment_percentage}%` }} />
+                      </div>
+                    </div>
+                 </div>
+                 
+                 {/* Gestor de Tareas integrado */}
+                 <div className="border border-slate-800/80 rounded-xl flex flex-col h-[400px] bg-[#131B29]/30">
+                    <div className="p-4 border-b border-slate-800/80 bg-[#131B29]/50">
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <Activity size={18} className="text-cyan-400" /> Tareas del Proyecto
+                      </h3>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-slate-700">
+                      {tasks.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                          <CheckCircle2 size={32} className="opacity-50 mb-2" />
+                          <p className="text-sm">No hay tareas registradas.</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border flex-shrink-0 ${
-                          t.status === "en espera" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
-                          t.status === "en curso" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
-                          "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                        }`}>
-                          {t.status}
-                        </span>
-                      </div>
-                    ))
-                  )}
-                </div>
+                      ) : (
+                        tasks.map(t => (
+                          <div key={t.id} className="flex items-center justify-between p-4 bg-[#0F1521] rounded-xl border border-slate-800/60 hover:border-cyan-900/40 transition-colors">
+                            <span className="text-slate-300 text-sm">{t.description}</span>
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border flex-shrink-0 ml-4 ${
+                              t.status === "en espera" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20" :
+                              t.status === "en curso" ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
+                              "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            }`}>
+                              {t.status}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
 
-                <div className="p-5 border-t border-slate-800/60 bg-[#0a0f1c]/50">
-                  <form onSubmit={handleAddTask} className="flex gap-3">
-                    <input
-                      type="text"
-                      value={newTaskDesc}
-                      onChange={(e) => setNewTaskDesc(e.target.value)}
-                      placeholder="Escribe una nueva tarea..."
-                      className="flex-1 bg-[#111827] border border-slate-700/50 rounded-xl px-5 py-3 text-sm text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder:text-slate-500"
-                      required
-                    />
-                    <button type="submit" className="bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                      <Plus size={18} /> <span className="hidden sm:inline">Agregar</span>
-                    </button>
-                  </form>
+                    <div className="p-4 border-t border-slate-800/80 bg-[#131B29]/50">
+                      <form onSubmit={handleAddTask} className="flex gap-3">
+                        <input
+                          type="text"
+                          value={newTaskDesc}
+                          onChange={(e) => setNewTaskDesc(e.target.value)}
+                          placeholder="Escribe una nueva tarea..."
+                          className="flex-1 bg-[#0F1521] border border-slate-700/50 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-slate-500"
+                          required
+                        />
+                        <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 transition-colors">
+                          <Plus size={18} /> <span className="hidden sm:inline">Agregar</span>
+                        </button>
+                      </form>
+                    </div>
+                 </div>
+
+               </div>
+             </div>
+          ) : (
+            /* Estado inicial - Empty State */
+            <div className="max-w-xl text-center space-y-6 relative z-10 animate-in fade-in duration-700">
+              <div className="relative mx-auto w-24 h-24 mb-10 flex items-center justify-center">
+                <div className="absolute inset-0 border border-slate-700/50 rounded-full scale-[1.3] opacity-30"></div>
+                <div className="absolute inset-0 border border-slate-600/30 rounded-full scale-[1.1] opacity-50"></div>
+                <div className="relative flex items-center justify-center w-20 h-20 bg-[#0F1521] border border-slate-700/80 rounded-full shadow-lg z-10">
+                  <Briefcase className="w-8 h-8 text-cyan-400" strokeWidth={1.5} />
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
-              <div className="w-24 h-24 rounded-full bg-cyan-900/20 border border-cyan-900/30 flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(6,182,212,0.1)]">
-                <Briefcase size={40} className="text-cyan-400" />
+              <div className="space-y-4 px-4">
+                <h2 className="text-3xl font-bold text-white tracking-tight">
+                  Panel de Control Global
+                </h2>
+                <p className="text-slate-400 text-sm leading-relaxed max-w-md mx-auto">
+                  Selecciona un proyecto del panel lateral para administrar sus
+                  detalles, gestionar tareas y monitorear los avances financieros
+                  de tus clientes.
+                </p>
               </div>
-              <h2 className="text-3xl font-bold text-white mb-3">Panel de Control Global</h2>
-              <p className="text-slate-400 max-w-md">
-                Selecciona un proyecto del panel lateral para administrar sus detalles, gestionar tareas y monitorear los avances financieros de tus clientes.
-              </p>
             </div>
           )}
         </div>
       </main>
-      
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #1e293b;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #334155;
-        }
-      `}} />
     </div>
   );
 }
