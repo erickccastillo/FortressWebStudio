@@ -18,7 +18,7 @@ export default function Login() {
     try {
       // Cambia esta URL por la de tu servicio en Render cuando subas el backend
       // Ejemplo: "https://tu-api-backend.onrender.com/api/login"
-      const response = await fetch("http://localhost:3000/api/login", {
+      const response = await fetch("https://fortresswebstudio-backend.onrender.com/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
