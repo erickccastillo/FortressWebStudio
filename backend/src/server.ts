@@ -183,7 +183,7 @@ app.post('/api/admin/projects', authenticateUser, async (req, res) => {
       user_id, 
       total_budget, 
       payment_percentage, 
-      status: status || 'en espera',
+      status: status || 'waiting',
       created_at: new Date().toISOString()
     }])
     .select(`
