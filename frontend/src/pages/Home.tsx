@@ -180,7 +180,7 @@ export default function Home() {
               brands and their communities.
             </p>
         
-            <p className="text-slate-400 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl mt-6">
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
               Through modern web development, intuitive design, and intelligent digital
               solutions, my goal is to transform ideas into experiences that bring
               businesses and people closer together while driving long-term growth.
