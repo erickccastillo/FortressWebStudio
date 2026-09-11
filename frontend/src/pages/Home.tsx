@@ -83,7 +83,32 @@ export default function Home() {
       `}} />
 
       <main className="relative z-10 w-full flex flex-col items-center pb-12 md:pb-20">
+        {/* --- SECCIÓN MISIÓN --- */}
+        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
+          <div className="mb-8 md:mb-12">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+              My Mission
+            </h3>
+            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
+          </div>
         
+          <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-8 md:p-12 hover:border-cyan-900/50 transition-all">
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
+              I decided to begin my journey as an independent web developer with a clear
+              purpose: <span className="text-cyan-400 font-medium">
+              helping businesses build meaningful connections with the people they serve.</span>
+              I believe technology should do more than automate processes. It should
+              create trust, improve communication, and strengthen relationships between
+              brands and their communities.
+            </p>
+        
+            <p className="text-slate-400 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl mt-6">
+              Through modern web development, intuitive design, and intelligent digital
+              solutions, my goal is to transform ideas into experiences that bring
+              businesses and people closer together while driving long-term growth.
+            </p>
+          </div>
+        </section>
         {/* --- SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-[1200px] mx-auto py-10">
           
