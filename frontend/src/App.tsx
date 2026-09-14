@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import AboutMe from './pages/AboutMe';
 import Login from './pages/Login';
 import Admin from './pages/AdminPanel';
 import Dashboard from './pages/ClientDashboard';
@@ -17,6 +18,7 @@ const App: React.FC = () => {
       <main className="flex-grow w-full custom-scroll">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/AboutMe" element={<AboutMe />} />
           <Route path="/login" element={<Login />} />
           <Route path="/adminpanel" element={<Admin />} />
           <Route path="/dashboard" element={<Dashboard />} />
