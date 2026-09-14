@@ -191,7 +191,7 @@ export default function Home() {
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
           <div className="mb-8 md:mb-12">
             <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              <GraduationCap className="text-cyan-400 w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0" />
+             
               <span className="leading-tight">About Me & Academic Trajectory</span>
             </h3>
             <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
@@ -236,7 +236,7 @@ export default function Home() {
         <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-20 mx-auto">
           <div className="mb-8 md:mb-12">
             <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              <Briefcase className="text-cyan-400 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0" />
+            
               <span>Professional Experience</span>
             </h3>
             <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
