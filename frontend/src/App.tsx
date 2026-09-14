@@ -18,7 +18,7 @@ const App: React.FC = () => {
       <main className="flex-grow w-full custom-scroll">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/AboutMe" element={<AboutMe />} />
+          <Route path="/aboutme" element={<AboutMe />} />
           <Route path="/login" element={<Login />} />
           <Route path="/adminpanel" element={<Admin />} />
           <Route path="/dashboard" element={<Dashboard />} />
