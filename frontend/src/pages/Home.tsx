@@ -85,72 +85,25 @@ export default function Home() {
         {/* --- SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-[1200px] mx-auto py-10">
           
-          {/* Foto colgante responsiva */}
-          <div className="flex flex-col items-center mb-6 md:mb-8 animate-swing origin-top">
-            <div className="w-[1px] h-12 md:h-16 lg:h-20 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
-            <div className="relative bg-[#0d1421] border border-cyan-900/40 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_rgba(6,182,212,0.1)] backdrop-blur-md flex flex-col items-center">
-              <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
-                <img 
-                  src={miFoto} 
-                  alt="Erick Alexander Castillo" 
-                  className="w-full h-full object-cover object-center"
-                />
-                <div className="absolute inset-0 border border-cyan-500/30 rounded-xl pointer-events-none"></div>
-              </div>
-              <div className="text-[9px] md:text-[10px] text-cyan-500 tracking-[0.2em] text-center font-mono mt-2 md:mt-3 mb-1 uppercase font-semibold opacity-80">
-                Computer Engineer - 2026
-              </div>
-            </div>
-          </div>
+        <div className="text-center w-full max-w-4xl mx-auto">
+  <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.25em] font-medium uppercase mb-4">
+    Fortress Web Studio
+  </p>
 
-          {/* Textos y Botones */}
-          <div className="text-center w-full max-w-3xl mx-auto">
-            <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-3 md:mb-4">
-              Welcome to my portfolio
-            </p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 tracking-tight leading-tight">
-              Erick Alexander Castillo
-            </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-cyan-400 mb-6 md:mb-8 tracking-tight">
-              Full-Stack Developer
-            </h2>
-            
-            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-8 md:mb-10">
-              I build atmospheric, high-performance web experiences with React, 
-              Node.js and modern AI integrations.
-            </p>
+  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
+    Modern Web Development
+    <span className="block text-cyan-400">
+      Built for Growing Businesses
+    </span>
+  </h1>
 
-            {/* Contenedor de botones adaptativo */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 w-full sm:w-auto">
-              <a
-                href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-bold transition-all duration-200 text-sm md:text-base shadow-lg shadow-cyan-500/20 hover:-translate-y-1"
-              >
-                <span className="font-extrabold">in</span>
-                LinkedIn
-              </a>
-
-              <a
-                href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 hover:bg-[#151e2f] text-white px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base hover:-translate-y-1"
-              >
-                <MessageCircle size={18} className="md:w-[20px] md:h-[20px]" />
-                WhatsApp
-              </a>
-
-              <a
-                href="mailto:erick.castillodesign@gmail.com?subject=Contacto%20desde%20tu%20web"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 hover:bg-[#151e2f] text-white px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base hover:-translate-y-1"
-              >
-                <Mail size={18} className="md:w-[20px] md:h-[20px]" />
-                Email
-              </a>
-            </div>
-          </div>
+  <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
+    Fortress Web Studio is a remote web development team focused on
+    creating modern websites, custom digital solutions, and scalable
+    online experiences that help businesses strengthen their presence,
+    attract new customers, and achieve long-term growth.
+  </p>
+</div>
         </section>
 
         {/* Icono de scroll (Visible en todas las pantallas) */}
@@ -159,135 +112,119 @@ export default function Home() {
       <div className="w-1.5 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
   </div>
 </div>
-    {/* --- SECCIÓN MISIÓN --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
+
+        
+            <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
           <div className="mb-8 md:mb-12">
             <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              My Mission
+              Our Mission
             </h3>
             <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
           </div>
         
-          <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-8 md:p-12 hover:border-cyan-900/50 transition-all">
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
-              I decided to begin my journey as an independent web developer with a clear
-              purpose: <span className="text-cyan-400 font-medium">
-              helping businesses build meaningful connections with the people they serve.</span>
-              I believe technology should do more than automate processes. It should
-              create trust, improve communication, and strengthen relationships between
-              brands and their communities.
+          <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose">
+              At Fortress Web Studio, our mission is to empower businesses through
+              innovative web solutions that combine exceptional design, modern
+              technology, and strategic thinking. We believe a website should be
+              more than an online presence. It should become a powerful tool that
+              supports business growth, improves customer engagement, and creates
+              lasting value.
             </p>
         
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl mt-6">
-              Through modern web development, intuitive design, and intelligent digital
-              solutions, my goal is to transform ideas into experiences that bring
-              businesses and people closer together while driving long-term growth.
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose mt-6">
+              By combining technical expertise with a client-focused approach, we
+              deliver digital products designed to meet real business needs while
+              maintaining reliability, performance, and scalability.
             </p>
           </div>
         </section>
+
+
+        
         {/* --- SECCIÓN SOBRE MÍ --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
+      <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
           <div className="mb-8 md:mb-12">
-            <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-             
-              <span className="leading-tight">About Me & Academic Trajectory</span>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+              Who We Are
             </h3>
             <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
           </div>
-
-          <div className="bg-[#0d131f] border border-slate-800/80 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl w-full transition-all hover:border-slate-700">
-            <div className="h-48 sm:h-64 md:h-[350px] lg:h-[450px] relative bg-slate-900 w-full">
-              <img 
-                src={fondo} 
-                alt="CUCEI Architecture" 
-                className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0d131f] via-[#0d131f]/60 to-transparent"></div>
-              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8 md:bottom-8 md:left-10 bg-[#0d131f]/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-slate-800/50">
-                <span className="text-xs sm:text-sm md:text-base text-cyan-400 font-mono tracking-widest uppercase">Alma mater • CUCEI UDG</span>
-              </div>
-            </div>
-            
-            <div className="p-6 sm:p-8 md:p-12 lg:p-16">
-              <div className="space-y-5 md:space-y-8 text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
-                <p>
-                  I'm a Computer engineer graduate with a strong university foundation in software engineering, algorithms and 
-                  distributed systems. During my studies I specialized in modern web development, focusing on <span className="text-cyan-400 font-medium">React</span> and <span className="text-cyan-400 font-medium">Node.js</span>, and led several academic projects around machine learning and AI integration.
-                </p>
-                <p>
-                  Today I bring 2 years of experience to designing and shipping full-stack products that combine clean architecture with AI-powered features — from intelligent automation pipelines to high-performance systems — always with an obsession for detail, performance, and great user experience.
-                </p>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 mt-8 md:mt-12">
-                {['React', 'Node.js', 'TypeScript', 'AI Integration', 'PostgreSQL', 'Tailwind CSS'].map((skill) => (
-                  <span key={skill} className="px-4 md:px-5 py-2 md:py-2.5 bg-[#121b29] border border-slate-700/50 text-cyan-300 text-xs sm:text-sm md:text-base rounded-full hover:bg-cyan-900/20 hover:border-cyan-500/50 transition-all cursor-default shadow-sm">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+        
+          <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
+            <div className="space-y-6 text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose">
+              <p>
+                Fortress Web Studio is a remote-first web development company
+                dedicated to helping businesses establish a professional and
+                effective digital presence. We specialize in designing and building
+                modern websites that blend great user experience with strong
+                technical foundations.
+              </p>
+        
+              <p>
+                Our team works collaboratively across projects, leveraging modern
+                technologies and streamlined workflows to ensure quality, efficiency,
+                and consistency in every solution we deliver.
+              </p>
+        
+              <p>
+                Whether developing a company website, a custom platform, or a
+                complete digital experience, our goal remains the same: creating
+                reliable solutions that support business success.
+              </p>
             </div>
           </div>
         </section>
 
         {/* --- SECCIÓN EXPERIENCIA --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-20 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-            
-              <span>Professional Experience</span>
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 w-full">
-            
-            <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col hover:border-cyan-900/50 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(6,182,212,0.05)] transition-all duration-300 group">
-              <div className="mb-5 md:mb-6">
-                <span className="inline-block px-4 py-1.5 bg-[#121b29] text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-4 group-hover:border-cyan-900/50 group-hover:text-cyan-400 transition-colors">
-                  2026 — Present
-                </span>
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Data Analyst Intern</h4>
-                <h5 className="text-cyan-400 text-base sm:text-lg md:text-xl font-medium">Eaton Cooper Power Series</h5>
-              </div>
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed md:leading-loose mb-8 flex-grow">
-                Accelerated workflow efficiency through targeted data reporting, database 
-                administration, and advanced Office-based information management.
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3 mt-auto">
-                {['Data Analysis', 'Database Admin', 'Reporting', 'Management'].map((tech) => (
-                  <span key={tech} className="px-3 py-1.5 bg-[#121b29] border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg group-hover:border-slate-700 transition-colors">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col hover:border-cyan-900/50 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(6,182,212,0.05)] transition-all duration-300 group">
-              <div className="mb-5 md:mb-6">
-                <span className="inline-block px-4 py-1.5 bg-[#121b29] text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-4 group-hover:border-cyan-900/50 group-hover:text-cyan-400 transition-colors">
-                  2024 — 2026
-                </span>
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Assistant Programmer</h4>
-                <h5 className="text-cyan-400 text-base sm:text-lg md:text-xl font-medium">DIVTIC LAB, UDG</h5>
-              </div>
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed md:leading-loose mb-8 flex-grow">
-                Supported development activities related to databases, web applications, 
-                and mobile programming. Applied academic knowledge to real technical projects 
-                in a collaborative lab environment.
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3 mt-auto">
-                {['Web Dev', 'Databases', 'Mobile', 'Problem Solving'].map((tech) => (
-                  <span key={tech} className="px-3 py-1.5 bg-[#121b29] border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg group-hover:border-slate-700 transition-colors">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-          </div>
-        </section>
-
+       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
+      <div className="mb-8 md:mb-12">
+        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+          How We Work
+        </h3>
+        <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
+      </div>
+    
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
+          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
+            Remote Collaboration
+          </h4>
+    
+          <p className="text-slate-400 leading-relaxed">
+            Operating remotely allows us to work with businesses from different
+            locations while maintaining flexibility, responsiveness, and
+            efficient communication throughout every stage of a project.
+          </p>
+        </div>
+    
+        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
+          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
+            Organized Process
+          </h4>
+    
+          <p className="text-slate-400 leading-relaxed">
+            Every project follows a structured workflow with clear milestones,
+            transparent planning, regular updates, and defined objectives that
+            keep progress measurable and predictable.
+          </p>
+        </div>
+    
+        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
+          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
+            Commitment to Excellence
+          </h4>
+    
+          <p className="text-slate-400 leading-relaxed">
+            We are committed to delivering dependable solutions, providing
+            ongoing support, and maintaining high standards of quality,
+            performance, and professionalism in every project.
+          </p>
+        </div>
+    
+      </div>
+    </section>
       </main>
     </div>
   );
