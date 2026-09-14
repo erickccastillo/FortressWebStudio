@@ -1,10 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  MessageCircle, 
-  Mail 
-} from 'lucide-react';
-import miFoto from '../images/photo.png';
-import fondo from '../images/fondo.png';
+
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
