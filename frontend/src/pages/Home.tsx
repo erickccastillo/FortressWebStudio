@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { 
   MessageCircle, 
-  GraduationCap, 
-  Briefcase,
   Mail 
 } from 'lucide-react';
 import miFoto from '../images/photo.png';
