@@ -225,6 +225,47 @@ export default function Home() {
     
       </div>
     </section>
+
+
+        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-20 mx-auto">
+  <div className="mb-8 md:mb-12">
+    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+      Our Values
+    </h3>
+    <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
+  </div>
+
+  <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
+    <p className="text-slate-300 text-lg md:text-xl leading-relaxed mb-8">
+      The foundation of Fortress Web Studio is built on principles that
+      guide every decision, project, and client relationship.
+    </p>
+
+    <div className="flex flex-wrap gap-4">
+      {[
+        'Commitment',
+        'Transparency',
+        'Organization',
+        'Communication',
+        'Innovation',
+        'Reliability',
+        'Quality',
+        'Professionalism',
+        'Collaboration',
+        'Growth',
+      ].map((value) => (
+        <span
+          key={value}
+          className="px-5 py-2 bg-[#121b29] border border-slate-700 text-cyan-300 rounded-full"
+        >
+          {value}
+        </span>
+      ))}
+    </div>
+  </div>
+</section>
+
+        
       </main>
     </div>
   );
