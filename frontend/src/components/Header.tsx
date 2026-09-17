@@ -34,6 +34,13 @@ export default function Header() {
 
         {/* Login */}
         <Link
+          to="/aboutme"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#0f1623] border border-slate-700 hover:border-cyan-500/40 text-slate-200 hover:text-white rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+        >
+          <LogIn size={18} />
+          <span>About Us</span>
+        </Link>
+        <Link
           to="/login"
           className="flex items-center gap-2 px-5 py-2.5 bg-[#0f1623] border border-slate-700 hover:border-cyan-500/40 text-slate-200 hover:text-white rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
         >
