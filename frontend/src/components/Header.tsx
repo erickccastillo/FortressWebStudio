@@ -8,20 +8,15 @@ export default function Header() {
     <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-[#050810]/70 border-b border-cyan-900/20">
       <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* Logo */}
+        {/* Logo (Lado Izquierdo) */}
         <Link to="/" className="group flex items-center gap-3">
-          {/* Se añade overflow-hidden para respetar los bordes redondeados */}
           <div className="w-11 h-11 rounded-xl bg-[#0d1421] border border-cyan-900/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.15)] overflow-hidden">
-            
-            {/* 2. Reemplazas la letra 'F' por la imagen */}
             <img 
               src={logo} 
               alt="Fortress Web Studio" 
               className="w-full h-full object-contain p-1.5" 
             />
-            
           </div>
-
           <div className="flex flex-col">
             <span className="text-white font-bold text-lg tracking-tight">
               Fortress
@@ -32,21 +27,27 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Login */}
-        <Link
-          to="/aboutme"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0f1623] border border-slate-700 hover:border-cyan-500/40 text-slate-200 hover:text-white rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-        >
-          <LogIn size={18} />
-          <span>About Us</span>
-        </Link>
-        <Link
-          to="/login"
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#0f1623] border border-slate-700 hover:border-cyan-500/40 text-slate-200 hover:text-white rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
-        >
-          <LogIn size={18} />
-          <span>Login</span>
-        </Link>
+        {/* Navegación y Acciones (Lado Derecho) */}
+        <div className="flex items-center gap-6">
+          
+          {/* About Us - Estilo texto de navegación limpio */}
+          <Link
+            to="/aboutme"
+            className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors duration-300 tracking-wide"
+          >
+            About Us
+          </Link>
+
+          {/* Login - Botón destacado */}
+          <Link
+            to="/login"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#0f1623] border border-slate-700 hover:border-cyan-500/40 text-slate-200 hover:text-white rounded-full transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)]"
+          >
+            <LogIn size={18} />
+            <span>Login</span>
+          </Link>
+          
+        </div>
       </div>
     </header>
   );
