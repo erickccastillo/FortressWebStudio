@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ExternalLink } from 'lucide-react';
-
+import bazar from '../images/bazar.png'; 
 // --- TIPO DE DATOS PARA TS ---
 interface Project {
   id: number;
@@ -19,7 +19,7 @@ const projects: Project[] = [
     title: "Fortress Bazar",
     category: "Web Development",
     description: "Fortress Bazar is a responsive, full-stack e-commerce web app for a streetwear store, featuring a dynamic catalog, direct WhatsApp ordering, and a secure admin dashboard for inventory management.",
-    image: "../images/bazar.png",
+    image: bazar,
     liveUrl: "https://fortressbazar.onrender.com/",
     tags: ["React", "Node.js", "Tailwind CSS"]
   }
