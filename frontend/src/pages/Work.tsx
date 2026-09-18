@@ -166,7 +166,7 @@ export default function Work() {
                   >
                     <ExternalLink size={16} />
                     <span>Live Preview</span>
-                  </a>s
+                  </a>
                 </div>
               </div>
 
