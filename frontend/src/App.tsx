@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Admin from './pages/AdminPanel';
 import Dashboard from './pages/ClientDashboard';
 import NotFound from './pages/NotFound';
+import Work from './pages/Work';
 import Header from "./components/Header";
 
 const App: React.FC = () => {
@@ -22,6 +23,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/adminpanel" element={<Admin />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/work" element={<Work />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
