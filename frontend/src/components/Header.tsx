@@ -30,7 +30,15 @@ export default function Header() {
         {/* Navegación y Acciones (Lado Derecho) */}
         <div className="flex items-center gap-6">
           
-          {/* About Us - Estilo texto de navegación limpio */}
+          {/* Our Work */}
+          <Link
+            to="/work"
+            className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors duration-300 tracking-wide"
+          >
+            Our Work
+          </Link>
+
+          {/* About Us */}
           <Link
             to="/aboutme"
             className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors duration-300 tracking-wide"
