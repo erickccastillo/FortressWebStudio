@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-// --- COMPONENTE: Computadora ASCII (Ahora estática) ---
+// --- COMPONENTE: Computadora ASCII (Estática) ---
 const AsciiComputer = () => {
   const [text, setText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -56,16 +56,37 @@ const AsciiComputer = () => {
 // --- COMPONENTE PRINCIPAL ---
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Manejo del fondo interactivo
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
+    // Manejo de la aparición del botón flotante
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
+
+  // Función para regresar al inicio
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div 
@@ -80,8 +101,12 @@ export default function Home() {
         }}
       />
 
+      {/* Agregué scroll-behavior: smooth para que la navegación sea fluida */}
       <style dangerouslySetInnerHTML={{__html: `
-        html, body {
+        html {
+          scroll-behavior: smooth !important;
+        }
+        body {
           background-color: #020617 !important; /* slate-950 */
           overflow-x: hidden !important;
           margin: 0;
@@ -89,13 +114,26 @@ export default function Home() {
         }
       `}} />
 
+      {/* --- BOTÓN FLOTANTE (Regresar al inicio) --- */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(45,212,191,0.3)] text-cyan-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-cyan-500/50 ${
+          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+        }`}
+        aria-label="Back to top"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+
       <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- 1. SECCIÓN HERO (Fondo slate-950) --- */}
+        {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-10">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow">
             
-            {/* Izquierda: Texto */}
+            {/* Izquierda: Texto y Botones de Navegación */}
             <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 mb-8 shadow-sm">
                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -111,12 +149,34 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-12">
+              <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8">
                 Fortress Web Studio is a remote web development team focused on
                 creating modern websites, custom digital solutions, and scalable
                 online experiences that help businesses strengthen their presence,
                 attract new customers, and achieve long-term growth.
               </p>
+
+              {/* Botones de navegación hacia las secciones */}
+              <div className="flex flex-wrap gap-4 mt-2">
+                <a 
+                  href="#who-we-are" 
+                  className="px-6 py-2.5 rounded-full border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 transition-colors text-sm font-medium tracking-wide"
+                >
+                  Who We Are
+                </a>
+                <a 
+                  href="#mission-values" 
+                  className="px-6 py-2.5 rounded-full border border-violet-500/40 text-violet-400 hover:bg-violet-500/10 transition-colors text-sm font-medium tracking-wide"
+                >
+                  Mission & Values
+                </a>
+                <a 
+                  href="#how-we-work" 
+                  className="px-6 py-2.5 rounded-full border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors text-sm font-medium tracking-wide"
+                >
+                  How We Work
+                </a>
+              </div>
             </div>
 
             {/* Derecha: Computadora ASCII (Fija) */}
@@ -136,8 +196,9 @@ export default function Home() {
         {/* LÍNEA DIVISORA BRILLANTE */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
 
-        {/* --- 2. SECCIÓN: WHO WE ARE (Fondo slate-900 alternado) --- */}
-        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
+        {/* --- 2. SECCIÓN: WHO WE ARE --- */}
+        {/* Agregado id="who-we-are" */}
+        <section id="who-we-are" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <div className="mb-10 md:mb-14 flex flex-col items-center">
               <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
@@ -172,8 +233,9 @@ export default function Home() {
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
 
-        {/* --- 3. SECCIÓN: MISSION & VALUES (Fondo slate-950) --- */}
-        <section className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
+        {/* --- 3. SECCIÓN: MISSION & VALUES --- */}
+        {/* Agregado id="mission-values" */}
+        <section id="mission-values" className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             
             {/* Mission */}
@@ -233,8 +295,9 @@ export default function Home() {
         {/* LÍNEA DIVISORA BRILLANTE */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
 
-        {/* --- 4. SECCIÓN: HOW WE WORK (Fondo slate-900 alternado) --- */}
-        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
+        {/* --- 4. SECCIÓN: HOW WE WORK --- */}
+        {/* Agregado id="how-we-work" */}
+        <section id="how-we-work" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <div className="mb-12 md:mb-16 flex flex-col items-center text-center">
               <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
