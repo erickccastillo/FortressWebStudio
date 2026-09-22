@@ -45,40 +45,31 @@ const DraggableBadge = () => {
   const badgeRef = useRef<HTMLDivElement>(null);
   
   const isDragging = useRef(false);
-  const pos = useRef({ x: 0, y: 0 }); // Posición actual de arrastre
-  const vel = useRef({ x: 0, y: 0 }); // Velocidad para el rebote
+  const pos = useRef({ x: 0, y: 0 }); 
+  const vel = useRef({ x: 0, y: 0 }); 
   const startMouse = useRef({ x: 0, y: 0 });
   const animationRef = useRef<number>(0);
 
-  // Actualiza el DOM directamente (sin re-renders de React) para 60fps ultra fluidos
   const updateTransform = () => {
     if (!containerRef.current || !badgeRef.current || !ropeRef.current) return;
 
-    // Movimiento X genera rotación desde arriba (Efecto péndulo)
     const angle = pos.current.x * 0.12; 
-    
-    // Movimiento Y genera traslación del gafete y estiramiento de la cuerda
     const translateY = pos.current.y;
     
-    // Altura promedio aproximada de la cuerda (para calcular cuánto se estira)
     const ropeBaseHeight = 80; 
     const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
 
-    // Aplicar transformaciones aisladas para no deformar la foto
     containerRef.current.style.transform = `rotate(${angle}deg)`;
     badgeRef.current.style.transform = `translateY(${translateY}px)`;
     ropeRef.current.style.transform = `scaleY(${scaleY})`;
   };
 
-  // Motor de físicas para el rebote y balanceo al soltar el mouse
   const animatePhysics = () => {
     if (isDragging.current) return;
 
-    // Físicas X (Balanceo tipo péndulo)
     vel.current.x += -pos.current.x * 0.04; 
     vel.current.x *= 0.94; 
 
-    // Físicas Y (Rebote tipo liga/resorte)
     vel.current.y += -pos.current.y * 0.15; 
     vel.current.y *= 0.82; 
 
@@ -87,14 +78,12 @@ const DraggableBadge = () => {
 
     updateTransform();
 
-    // Detener la animación cuando los valores son muy pequeños (ya se estabilizó)
     if (
       Math.abs(vel.current.x) > 0.1 || Math.abs(vel.current.y) > 0.1 || 
       Math.abs(pos.current.x) > 0.5 || Math.abs(pos.current.y) > 0.5
     ) {
       animationRef.current = requestAnimationFrame(animatePhysics);
     } else {
-      // Regresar a la normalidad y reactivar la animación flotante CSS
       pos.current = { x: 0, y: 0 };
       updateTransform();
       containerRef.current?.classList.add('animate-swing');
@@ -125,7 +114,6 @@ const DraggableBadge = () => {
       const newX = clientX - startMouse.current.x;
       const newY = clientY - startMouse.current.y;
 
-      // Limitar distancias para que se sienta pesado/resistente
       pos.current.x = Math.max(-250, Math.min(250, newX * 0.6));
       pos.current.y = Math.max(-20, Math.min(180, newY * 0.6)); 
 
@@ -154,36 +142,35 @@ const DraggableBadge = () => {
 
   return (
     <div className="relative flex flex-col items-center mb-8 z-20 animate-[fade-in_1s_ease-out]">
-      {/* "Clavo" invisible para darle realismo visual al punto de anclaje */}
+      {/* "Clavo" invisible */}
       <div className="absolute -top-1 w-2.5 h-2.5 bg-slate-800 border border-slate-600 rounded-full shadow-inner z-10"></div>
       
-      {/* Contenedor que Rota (Péndulo) */}
       <div 
         ref={containerRef}
         className="flex flex-col items-center origin-top select-none animate-swing"
         style={{ willChange: 'transform' }}
       >
-        {/* Cuerda que se Estira */}
+        {/* Cuerda */}
         <div 
           ref={ropeRef}
           className="w-[1.5px] h-12 sm:h-16 md:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
-        {/* Gafete / Tarjeta FÍSICA PROPORCIONADA */}
+        {/* Gafete Más Cuadrado y Ancho */}
         <div 
           ref={badgeRef}
           onMouseDown={handleDown}
           onTouchStart={handleDown}
-          // Ancho fijo responsivo. El alto se adaptará automáticamente gracias al aspect-[3/4] de la imagen
-          className="w-24 sm:w-28 md:w-32 relative bg-slate-900 border border-slate-700 rounded-xl p-2 sm:p-2.5 pt-3 sm:pt-4 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          // Aumenté el ancho (de w-24 a w-32/40) y el padding interno
+          className="w-32 sm:w-36 md:w-40 relative bg-slate-900 border border-slate-700 rounded-xl p-3 sm:p-4 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
           style={{ willChange: 'transform' }}
         >
-          {/* Ranura para el clip (Detalle de realismo) */}
-          <div className="w-8 h-1.5 bg-slate-950/80 rounded-full mb-3 shadow-inner border border-slate-800/50 pointer-events-none"></div>
+          {/* Ranura para el clip más ancha */}
+          <div className="w-10 h-1.5 bg-slate-950/80 rounded-full mb-3 sm:mb-4 shadow-inner border border-slate-800/50 pointer-events-none"></div>
 
-          {/* Contenedor de la foto con proporción perfecta de retrato (3:4) */}
-          <div className="w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none">
+          {/* Contenedor de la foto con proporción más cuadrada (aspect-[4/5]) */}
+          <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none">
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
@@ -192,10 +179,10 @@ const DraggableBadge = () => {
             <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
           
-          {/* Texto acomodado para caber bien en el nuevo formato */}
-          <div className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none w-full">
-            <span className="block mb-0.5 text-slate-300">Computer Eng.</span>
-            <span className="block text-cyan-500/80">2026</span>
+          {/* Texto espaciado correctamente */}
+          <div className="text-[8px] sm:text-[9px] md:text-[10px] text-slate-400 tracking-[0.1em] text-center font-mono mt-4 mb-1 uppercase font-semibold pointer-events-none w-full">
+            <span className="block mb-1 text-slate-300">Computer Eng.</span>
+            <span className="block text-cyan-500/80 tracking-[0.2em]">2026</span>
           </div>
         </div>
       </div>
