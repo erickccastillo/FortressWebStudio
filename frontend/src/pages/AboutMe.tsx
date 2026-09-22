@@ -16,9 +16,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
       entries.forEach(entry => {
         setVisible(entry.isIntersecting);
       });
-    }, { 
-      threshold: 0.15 
-    });
+    }, { threshold: 0.15 });
 
     const currentRef = domRef.current;
     if (currentRef) observer.observe(currentRef);
@@ -32,9 +30,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
     <div
       ref={domRef}
       className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay} ${
-        isVisible 
-          ? 'opacity-100 translate-y-0 scale-100' 
-          : 'opacity-0 translate-y-12 scale-95'
+        isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95'
       }`}
     >
       {children}
@@ -42,86 +38,149 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Gafete Interactivo, Arrastrable y Elástico ---
+// --- COMPONENTE: Gafete Interactivo con Físicas (Péndulo y Resorte) ---
 const DraggableBadge = () => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const dragStart = useRef({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const ropeRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  
+  const isDragging = useRef(false);
+  const pos = useRef({ x: 0, y: 0 }); // Posición actual de arrastre
+  const vel = useRef({ x: 0, y: 0 }); // Velocidad para el rebote
+  const startMouse = useRef({ x: 0, y: 0 });
+  const animationRef = useRef<number>();
 
-  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsDragging(true);
+  // Actualiza el DOM directamente (sin re-renders de React) para 60fps ultra fluidos
+  const updateTransform = () => {
+    if (!containerRef.current || !badgeRef.current || !ropeRef.current) return;
+
+    // Movimiento X genera rotación desde arriba (Efecto péndulo)
+    const angle = pos.current.x * 0.12; 
+    
+    // Movimiento Y genera traslación del gafete y estiramiento de la cuerda
+    const translateY = pos.current.y;
+    
+    // Altura promedio aproximada de la cuerda (para calcular cuánto se estira)
+    const ropeBaseHeight = 80; 
+    const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
+
+    // Aplicar transformaciones aisladas para no deformar la foto
+    containerRef.current.style.transform = `rotate(${angle}deg)`;
+    badgeRef.current.style.transform = `translateY(${translateY}px)`;
+    ropeRef.current.style.transform = `scaleY(${scaleY})`;
+  };
+
+  // Motor de físicas para el rebote y balanceo al soltar el mouse
+  const animatePhysics = () => {
+    if (isDragging.current) return;
+
+    // Físicas X (Balanceo tipo péndulo)
+    vel.current.x += -pos.current.x * 0.04; // Tensión (Qué tan fuerte regresa)
+    vel.current.x *= 0.94; // Fricción (Qué tanto tarda en detenerse)
+
+    // Físicas Y (Rebote tipo liga/resorte)
+    vel.current.y += -pos.current.y * 0.15; // Mayor tensión vertical
+    vel.current.y *= 0.82; // Fricción más alta para que el rebote pare antes
+
+    pos.current.x += vel.current.x;
+    pos.current.y += vel.current.y;
+
+    updateTransform();
+
+    // Detener la animación cuando los valores son muy pequeños (ya se estabilizó)
+    if (
+      Math.abs(vel.current.x) > 0.1 || Math.abs(vel.current.y) > 0.1 || 
+      Math.abs(pos.current.x) > 0.5 || Math.abs(pos.current.y) > 0.5
+    ) {
+      animationRef.current = requestAnimationFrame(animatePhysics);
+    } else {
+      // Regresar a la normalidad y reactivar la animación flotante CSS
+      pos.current = { x: 0, y: 0 };
+      updateTransform();
+      containerRef.current?.classList.add('animate-swing');
+    }
+  };
+
+  const handleDown = (e: React.MouseEvent | React.TouchEvent) => {
+    isDragging.current = true;
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    containerRef.current?.classList.remove('animate-swing');
+
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-    dragStart.current = { x: clientX - position.x, y: clientY - position.y };
+
+    startMouse.current = {
+      x: clientX - pos.current.x,
+      y: clientY - pos.current.y
+    };
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
-      if (!isDragging) return;
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging.current) return;
+
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      
-      let newX = clientX - dragStart.current.x;
-      let newY = clientY - dragStart.current.y;
-      
-      // Añadimos "resistencia" para que se sienta como física elástica
-      newX = newX * 0.4;
-      newY = newY * 0.4;
 
-      // Límites físicos del arrastre
-      if (newY < -10) newY = -10; 
-      if (newY > 150) newY = 150; // Límite de estiramiento hacia abajo
-      if (newX < -150) newX = -150;
-      if (newX > 150) newX = 150;
+      const newX = clientX - startMouse.current.x;
+      const newY = clientY - startMouse.current.y;
 
-      setPosition({ x: newX, y: newY });
+      // Limitar distancias para que se sienta pesado/resistente
+      pos.current.x = Math.max(-250, Math.min(250, newX * 0.6));
+      pos.current.y = Math.max(-20, Math.min(180, newY * 0.6)); // No deja subirlo mucho, pero sí bajarlo
+
+      updateTransform();
     };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      setPosition({ x: 0, y: 0 }); // Restablece la posición para el "Snap" de rebote
+    const handleUp = () => {
+      if (!isDragging.current) return;
+      isDragging.current = false;
+      // Iniciar físicas de regreso al soltar
+      animationRef.current = requestAnimationFrame(animatePhysics);
     };
 
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchmove', handleMouseMove);
-      window.addEventListener('touchend', handleMouseUp);
-    }
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleUp);
+
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchmove', handleMouseMove);
-      window.removeEventListener('touchend', handleMouseUp);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleUp);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isDragging]);
-
-  // Cálculos matemáticos para el efecto gelatina (Estiramiento visual)
-  const rotation = position.x * 0.15; 
-  const stretchY = 1 + Math.max(0, position.y) * 0.003; // Se alarga hacia abajo
-  const stretchX = 1 - Math.max(0, position.y) * 0.001; // Se hace más delgado horizontalmente
+  }, []);
 
   return (
-    <div className="flex flex-col items-center mb-10 z-20 animate-[fade-in_1s_ease-out]">
+    <div className="relative flex flex-col items-center mb-8 z-20 animate-[fade-in_1s_ease-out]">
+      {/* "Clavo" invisible para darle realismo visual al punto de anclaje */}
+      <div className="absolute -top-1 w-2.5 h-2.5 bg-slate-800 border border-slate-600 rounded-full shadow-inner z-10"></div>
+      
+      {/* Contenedor que Rota (Péndulo) */}
       <div 
-        className={`flex flex-col items-center origin-top select-none ${
-          !isDragging ? 'animate-swing transition-transform duration-[800ms] ease-elastic' : ''
-        }`}
-        style={{
-          transform: isDragging ? `rotate(${rotation}deg) scaleX(${stretchX}) scaleY(${stretchY})` : undefined
-        }}
+        ref={containerRef}
+        className="flex flex-col items-center origin-top select-none animate-swing"
+        style={{ willChange: 'transform' }}
       >
-        {/* Cuerda / Hilo */}
-        <div className="w-[1.5px] h-10 md:h-14 lg:h-16 bg-gradient-to-b from-transparent to-cyan-500/80 pointer-events-none"></div>
-        
-        {/* Gafete / Tarjeta */}
+        {/* Cuerda que se Estira */}
         <div 
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleMouseDown}
-          className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          ref={ropeRef}
+          className="w-[1.5px] h-16 md:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
+          style={{ willChange: 'transform' }}
+        ></div>
+        
+        {/* Gafete que Traslada (Más grande como lo pediste) */}
+        <div 
+          ref={badgeRef}
+          onMouseDown={handleDown}
+          onTouchStart={handleDown}
+          className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          style={{ willChange: 'transform' }}
         >
-          {/* Contenedor de la foto (Tamaño más pequeño y estilizado) */}
-          <div className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 rounded-xl overflow-hidden bg-slate-800 relative group pointer-events-none">
+          {/* Contenedor de la foto */}
+          <div className="w-20 h-24 sm:w-24 sm:h-28 md:w-28 md:h-32 rounded-xl overflow-hidden bg-slate-800 relative group pointer-events-none">
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
@@ -129,9 +188,9 @@ const DraggableBadge = () => {
             />
             <div className="absolute inset-0 border border-slate-700/50 rounded-xl"></div>
           </div>
-          {/* Texto ligeramente abreviado para caber en el nuevo tamaño */}
-          <div className="text-[8px] md:text-[9px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none">
-            Comp. Eng. '26
+          {/* Texto Restaurado */}
+          <div className="text-[9px] md:text-[10px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none">
+            Computer Engineer - 2026
           </div>
         </div>
       </div>
@@ -197,19 +256,15 @@ export default function AboutMe() {
           padding: 0;
         }
 
-        /* Animación del balanceo y físicas de rebote del gafete */
+        /* Animación suave para el estado inactivo del gafete */
         @keyframes swing {
-          0% { transform: rotate(3deg); }
-          50% { transform: rotate(-3deg); }
-          100% { transform: rotate(3deg); }
+          0% { transform: rotate(2deg); }
+          50% { transform: rotate(-2deg); }
+          100% { transform: rotate(2deg); }
         }
         .animate-swing {
           animation: swing 6s ease-in-out infinite;
           transform-origin: top center;
-        }
-        .ease-elastic {
-          /* Esta curva matemática es el secreto del "efecto resorte" al soltarlo */
-          transition-timing-function: cubic-bezier(0.4, 2.5, 0.4, 1);
         }
       `}} />
 
@@ -233,7 +288,7 @@ export default function AboutMe() {
           
           <div className="w-full flex flex-col items-center justify-center flex-grow">
             
-            {/* AQUÍ INYECTAMOS EL NUEVO GAFETE INTERACTIVO */}
+            {/* NUEVO GAFETE INTERACTIVO */}
             <DraggableBadge />
 
             {/* Textos y Botones */}
