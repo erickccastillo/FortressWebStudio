@@ -1,6 +1,60 @@
 import { useState, useEffect, useRef } from 'react';
 
+// --- COMPONENTE: Computadora ASCII Animada ---
+const AsciiComputer = () => {
+  const [text, setText] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const fullText = "Diseñando para humanos...\nConstruyendo la web_";
 
+  useEffect(() => {
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= fullText.length) {
+        setText(fullText.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 100);
+
+    const cursorInterval = setInterval(() => {
+      setCursorVisible((prev) => !prev);
+    }, 500);
+
+    return () => {
+      clearInterval(typingInterval);
+      clearInterval(cursorInterval);
+    };
+  }, []);
+
+  return (
+    <div className="relative font-mono text-sky-400 text-[10px] sm:text-xs md:text-sm leading-tight bg-[#0f172a] border border-slate-700/50 p-6 md:p-8 rounded-2xl shadow-2xl shadow-indigo-500/10">
+      <pre className="whitespace-pre-wrap">
+{`   .=================================.
+   | ............................... |
+   | .                             . |
+   | .  >_ Hello_                  . |
+   | .                             . |
+   | .  ${text}${cursorVisible ? '█' : ' '} `}
+{/* Espacios vacíos para mantener la altura */}
+{`  . |
+   | .                             . |
+   | ............................... |
+   '================================='
+               ||     ||
+            ___||_____||___
+           /###############\\
+          /=================\\
+`}
+      </pre>
+      {/* Reflejo sutil en la "pantalla" */}
+      <div className="absolute top-8 left-8 right-8 h-1/3 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-sm" />
+    </div>
+  );
+};
+
+
+// --- COMPONENTE PRINCIPAL ---
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,255 +65,178 @@ export default function Home() {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative flex flex-col w-full overflow-x-hidden"
+      className="min-h-screen bg-[#0b1120] text-slate-300 font-sans selection:bg-indigo-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
-      
-      {/* Efecto de resplandor de fondo interactivo (Solo PC) */}
+      {/* Fondo Interactivo Suave (Más limpio y menos invasivo) */}
       <div 
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300 hidden lg:block"
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(6, 182, 212, 0.08), transparent 40%)`
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(99, 102, 241, 0.05), transparent 40%)`
         }}
       />
-      
-      {/* Fallback de fondo estático para móviles y tablets */}
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/10 via-[#050810] to-[#050810] lg:hidden"></div>
 
-      {/* Humo animado (se ajusta en móvil para no desbordar) */}
-      <div className="fixed -left-[30%] md:-left-[10%] top-[10%] w-[80%] md:w-[40%] lg:w-[30%] h-[60%] bg-cyan-900/20 rounded-full blur-[80px] md:blur-[130px] pointer-events-none z-0 animate-smoke-left"></div>
-      <div className="fixed -right-[30%] md:-right-[10%] top-[20%] w-[80%] md:w-[40%] lg:w-[30%] h-[60%] bg-cyan-900/20 rounded-full blur-[80px] md:blur-[130px] pointer-events-none z-0 animate-smoke-right"></div>
+      {/* Fallback estático para móviles */}
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0b1120] to-[#0b1120] lg:hidden" />
 
+      {/* Estilos Globales Ajustados */}
       <style dangerouslySetInnerHTML={{__html: `
-        /* Forzar el fondo oscuro y eliminar scroll horizontal a nivel global */
         html, body {
-          background-color: #050810 !important;
+          background-color: #0b1120 !important;
           overflow-x: hidden !important;
           margin: 0;
           padding: 0;
-          width: 100%;
-        }
-
-        @keyframes swing {
-          0% { transform: rotate(3deg); }
-          50% { transform: rotate(-3deg); }
-          100% { transform: rotate(3deg); }
-        }
-        .animate-swing {
-          animation: swing 4s ease-in-out infinite;
-          transform-origin: top center;
-        }
-        
-        @keyframes smoke-left {
-          0% { transform: translateX(-10%) scale(1); opacity: 0.3; }
-          50% { transform: translateX(10%) scale(1.1); opacity: 0.7; }
-          100% { transform: translateX(-10%) scale(1); opacity: 0.3; }
-        }
-        @keyframes smoke-right {
-          0% { transform: translateX(10%) scale(1); opacity: 0.3; }
-          50% { transform: translateX(-10%) scale(1.1); opacity: 0.7; }
-          100% { transform: translateX(10%) scale(1); opacity: 0.3; }
-        }
-        .animate-smoke-left {
-          animation: smoke-left 12s ease-in-out infinite;
-        }
-        .animate-smoke-right {
-          animation: smoke-right 15s ease-in-out infinite;
         }
       `}} />
 
       <main className="relative z-10 w-full flex flex-col items-center pb-12 md:pb-20">
     
-        {/* --- SECCIÓN HERO --- */}
-        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-[1200px] mx-auto py-10">
-          
-        <div className="text-center w-full max-w-4xl mx-auto">
-  <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.25em] font-medium uppercase mb-4">
-    Fortress Web Studio
-  </p>
+        {/* --- 1. SECCIÓN HERO (Dividida Izquierda / Derecha) --- */}
+        <section className="relative flex items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto py-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-12 lg:gap-8">
+            
+            {/* Izquierda: Texto */}
+            <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700/50 mb-6">
+                <div className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                <p className="text-sky-300 text-xs font-medium tracking-widest uppercase">
+                  Fortress Web Studio
+                </p>
+              </div>
 
-  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
-    Modern Web Development
-    <span className="block text-cyan-400">
-      Built for Growing Businesses
-    </span>
-  </h1>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
+                Desarrollo web <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400">
+                  con toque humano.
+                </span>
+              </h1>
 
-  <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10">
-    Fortress Web Studio is a remote web development team focused on
-    creating modern websites, custom digital solutions, and scalable
-    online experiences that help businesses strengthen their presence,
-    attract new customers, and achieve long-term growth.
-  </p>
-</div>
-        </section>
+              <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-10">
+                Somos un equipo remoto enfocado en crear sitios modernos y soluciones digitales escalables. No solo escribimos código; construimos herramientas que ayudan a tu negocio a conectar, crecer y destacar.
+              </p>
 
-        {/* Icono de scroll (Visible en todas las pantallas) */}
-<div className="flex justify-center pb-12 md:pb-20 w-full">
-  <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
-      <div className="w-1.5 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
-  </div>
-</div>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <button className="px-8 py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-sky-500/20 text-sm md:text-base">
+                  Inicia tu proyecto
+                </button>
+                <button className="px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl transition-all duration-300 border border-slate-700 text-sm md:text-base">
+                  Conoce más
+                </button>
+              </div>
+            </div>
 
-        
-            <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              Our Mission
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-          </div>
-        
-          <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose">
-              At Fortress Web Studio, our mission is to empower businesses through
-              innovative web solutions that combine exceptional design, modern
-              technology, and strategic thinking. We believe a website should be
-              more than an online presence. It should become a powerful tool that
-              supports business growth, improves customer engagement, and creates
-              lasting value.
-            </p>
-        
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose mt-6">
-              By combining technical expertise with a client-focused approach, we
-              deliver digital products designed to meet real business needs while
-              maintaining reliability, performance, and scalability.
-            </p>
+            {/* Derecha: Computadora ASCII */}
+            <div className="w-full lg:w-[45%] flex justify-center lg:justify-end">
+              <div className="animate-[swing_6s_ease-in-out_infinite]">
+                <AsciiComputer />
+              </div>
+            </div>
+
           </div>
         </section>
 
+        {/* Icono de scroll */}
+        <div className="flex justify-center pb-12 md:pb-24 w-full">
+          <div className="w-6 h-10 border-2 border-slate-600 rounded-full flex justify-center pt-2">
+              <div className="w-1.5 h-2 bg-indigo-400 rounded-full animate-bounce"></div>
+          </div>
+        </div>
 
-        
-        {/* --- SECCIÓN SOBRE MÍ --- */}
-      <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              Who We Are
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
+        {/* --- 2. SECCIÓN: CÓMO TRABAJAMOS (Tarjetas limpias) --- */}
+        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 mx-auto">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Nuestra forma de trabajar
+            </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Procesos claros y comunicación constante para que tu proyecto fluya sin estrés.
+            </p>
           </div>
         
-          <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
-            <div className="space-y-6 text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose">
-              <p>
-                Fortress Web Studio is a remote-first web development company
-                dedicated to helping businesses establish a professional and
-                effective digital presence. We specialize in designing and building
-                modern websites that blend great user experience with strong
-                technical foundations.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1 */}
+            <div className="group bg-[#111827] hover:bg-[#161f33] border border-slate-800 hover:border-indigo-500/30 transition-all duration-300 rounded-3xl p-8 shadow-xl">
+              <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                <span className="text-indigo-400 text-xl">🌍</span>
+              </div>
+              <h4 className="text-white text-xl font-semibold mb-3">Colaboración Remota</h4>
+              <p className="text-slate-400 leading-relaxed text-sm md:text-base">
+                Operamos de forma remota, permitiéndonos trabajar con negocios en cualquier lugar, manteniendo flexibilidad y comunicación ágil.
               </p>
+            </div>
         
-              <p>
-                Our team works collaboratively across projects, leveraging modern
-                technologies and streamlined workflows to ensure quality, efficiency,
-                and consistency in every solution we deliver.
+            {/* Card 2 */}
+            <div className="group bg-[#111827] hover:bg-[#161f33] border border-slate-800 hover:border-sky-500/30 transition-all duration-300 rounded-3xl p-8 shadow-xl">
+              <div className="w-12 h-12 bg-sky-500/10 rounded-2xl flex items-center justify-center mb-6 border border-sky-500/20 group-hover:scale-110 transition-transform">
+                <span className="text-sky-400 text-xl">📋</span>
+              </div>
+              <h4 className="text-white text-xl font-semibold mb-3">Proceso Organizado</h4>
+              <p className="text-slate-400 leading-relaxed text-sm md:text-base">
+                Cada proyecto sigue un flujo estructurado con hitos claros, planeación transparente y objetivos definidos para resultados predecibles.
               </p>
+            </div>
         
-              <p>
-                Whether developing a company website, a custom platform, or a
-                complete digital experience, our goal remains the same: creating
-                reliable solutions that support business success.
+            {/* Card 3 */}
+            <div className="group bg-[#111827] hover:bg-[#161f33] border border-slate-800 hover:border-indigo-500/30 transition-all duration-300 rounded-3xl p-8 shadow-xl">
+              <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                <span className="text-indigo-400 text-xl">💎</span>
+              </div>
+              <h4 className="text-white text-xl font-semibold mb-3">Compromiso Total</h4>
+              <p className="text-slate-400 leading-relaxed text-sm md:text-base">
+                Entregamos soluciones confiables, brindamos soporte continuo y mantenemos altos estándares de calidad y profesionalismo.
               </p>
             </div>
           </div>
         </section>
 
-        {/* --- SECCIÓN EXPERIENCIA --- */}
-       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
-      <div className="mb-8 md:mb-12">
-        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-          How We Work
-        </h3>
-        <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-      </div>
-    
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
-          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
-            Remote Collaboration
-          </h4>
-    
-          <p className="text-slate-400 leading-relaxed">
-            Operating remotely allows us to work with businesses from different
-            locations while maintaining flexibility, responsiveness, and
-            efficient communication throughout every stage of a project.
-          </p>
-        </div>
-    
-        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
-          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
-            Organized Process
-          </h4>
-    
-          <p className="text-slate-400 leading-relaxed">
-            Every project follows a structured workflow with clear milestones,
-            transparent planning, regular updates, and defined objectives that
-            keep progress measurable and predictable.
-          </p>
-        </div>
-    
-        <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8">
-          <h4 className="text-cyan-400 text-xl font-semibold mb-4">
-            Commitment to Excellence
-          </h4>
-    
-          <p className="text-slate-400 leading-relaxed">
-            We are committed to delivering dependable solutions, providing
-            ongoing support, and maintaining high standards of quality,
-            performance, and professionalism in every project.
-          </p>
-        </div>
-    
-      </div>
-    </section>
+        {/* --- 3. SECCIÓN: QUIÉNES SOMOS & MISIÓN (Diseño Asimétrico) --- */}
+        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-16 mx-auto">
+          <div className="bg-gradient-to-br from-[#111827] to-[#0d131f] border border-slate-800 rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden">
+            {/* Efecto de luz en la esquina */}
+            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+              <div>
+                <h3 className="text-sm font-semibold tracking-widest text-sky-400 uppercase mb-3">
+                  Nuestra Misión
+                </h3>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 leading-tight">
+                  Más que una página web,<br/> una herramienta de crecimiento.
+                </h2>
+                <p className="text-slate-400 text-lg leading-relaxed mb-6">
+                  Creemos que un sitio web debe ser una extensión viva de tu negocio. En Fortress Web Studio empoderamos empresas mediante soluciones innovadoras que combinan diseño excepcional, tecnología moderna y pensamiento estratégico.
+                </p>
+                <p className="text-slate-400 text-lg leading-relaxed">
+                  Fusionamos nuestra experiencia técnica con un enfoque humano. Nuestro objetivo es entregarte productos digitales que resuelvan problemas reales, garantizando rendimiento y escalabilidad.
+                </p>
+              </div>
 
-
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-20 mx-auto">
-  <div className="mb-8 md:mb-12">
-    <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-      Our Values
-    </h3>
-    <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-  </div>
-
-  <div className="bg-[#0d131f] border border-slate-800 rounded-3xl p-8 md:p-12">
-    <p className="text-slate-300 text-lg md:text-xl leading-relaxed mb-8">
-      The foundation of Fortress Web Studio is built on principles that
-      guide every decision, project, and client relationship.
-    </p>
-
-    <div className="flex flex-wrap gap-4">
-      {[
-        'Commitment',
-        'Transparency',
-        'Organization',
-        'Communication',
-        'Innovation',
-        'Reliability',
-        'Quality',
-        'Professionalism',
-        'Collaboration',
-        'Growth',
-      ].map((value) => (
-        <span
-          key={value}
-          className="px-5 py-2 bg-[#121b29] border border-slate-700 text-cyan-300 rounded-full"
-        >
-          {value}
-        </span>
-      ))}
-    </div>
-  </div>
-</section>
-
+              {/* Valores (Píldoras) integrados visualmente a la derecha */}
+              <div className="bg-[#0b1120]/50 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8">
+                <h4 className="text-white font-medium mb-6">Valores que nos definen:</h4>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    'Compromiso', 'Transparencia', 'Organización', 
+                    'Comunicación', 'Innovación', 'Confiabilidad', 
+                    'Calidad', 'Crecimiento'
+                  ].map((value) => (
+                    <span
+                      key={value}
+                      className="px-4 py-2 bg-slate-800/80 border border-slate-700 text-slate-300 text-sm rounded-xl hover:border-sky-500/50 hover:text-sky-300 transition-colors cursor-default"
+                    >
+                      {value}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         
       </main>
     </div>
