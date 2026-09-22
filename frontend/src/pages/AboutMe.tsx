@@ -6,7 +6,7 @@ import { MessageCircle, Mail } from 'lucide-react';
 import miFoto from '../images/photo.png';
 import fondo from '../images/fondo.png';
 
-// --- COMPONENTE: Animación de Scroll (Aparición/Desaparición) ---
+// --- COMPONENTE: Animación de Scroll ---
 const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, delay?: string }) => {
   const [isVisible, setVisible] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
@@ -38,7 +38,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Gafete Interactivo con Físicas (Péndulo y Resorte) ---
+// --- COMPONENTE: Gafete Interactivo con Físicas y Tamaño Responsivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ropeRef = useRef<HTMLDivElement>(null);
@@ -56,7 +56,8 @@ const DraggableBadge = () => {
     const angle = pos.current.x * 0.12; 
     const translateY = pos.current.y;
     
-    const ropeBaseHeight = 80; 
+    // Ajustado para el nuevo tamaño de la cuerda
+    const ropeBaseHeight = 120; 
     const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
 
     containerRef.current.style.transform = `rotate(${angle}deg)`;
@@ -114,8 +115,9 @@ const DraggableBadge = () => {
       const newX = clientX - startMouse.current.x;
       const newY = clientY - startMouse.current.y;
 
-      pos.current.x = Math.max(-250, Math.min(250, newX * 0.6));
-      pos.current.y = Math.max(-20, Math.min(180, newY * 0.6)); 
+      // Límites de arrastre ampliados para el nuevo tamaño
+      pos.current.x = Math.max(-350, Math.min(350, newX * 0.6));
+      pos.current.y = Math.max(-30, Math.min(250, newY * 0.6)); 
 
       updateTransform();
     };
@@ -141,36 +143,35 @@ const DraggableBadge = () => {
   }, []);
 
   return (
-    <div className="relative flex flex-col items-center mb-8 z-20 animate-[fade-in_1s_ease-out]">
+    <div className="relative flex flex-col items-center z-20 animate-[fade-in_1s_ease-out]">
       {/* "Clavo" invisible */}
-      <div className="absolute -top-1 w-2.5 h-2.5 bg-slate-800 border border-slate-600 rounded-full shadow-inner z-10"></div>
+      <div className="absolute -top-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-slate-800 border border-slate-600 rounded-full shadow-inner z-10"></div>
       
       <div 
         ref={containerRef}
         className="flex flex-col items-center origin-top select-none animate-swing"
         style={{ willChange: 'transform' }}
       >
-        {/* Cuerda */}
+        {/* Cuerda: Crece con la pantalla */}
         <div 
           ref={ropeRef}
-          className="w-[1.5px] h-12 sm:h-16 md:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
+          className="w-[1.5px] h-12 sm:h-16 md:h-24 lg:h-32 xl:h-40 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
-        {/* Gafete Más Cuadrado y Ancho */}
+        {/* Gafete: Ahora se adapta drásticamente al tamaño de pantalla */}
         <div 
           ref={badgeRef}
           onMouseDown={handleDown}
           onTouchStart={handleDown}
-          // Aumenté el ancho (de w-24 a w-32/40) y el padding interno
-          className="w-32 sm:w-36 md:w-40 relative bg-slate-900 border border-slate-700 rounded-xl p-3 sm:p-4 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          className="w-36 sm:w-44 md:w-52 lg:w-60 xl:w-64 relative bg-slate-900 border border-slate-700 rounded-xl lg:rounded-2xl p-3 sm:p-4 md:p-5 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
           style={{ willChange: 'transform' }}
         >
-          {/* Ranura para el clip más ancha */}
-          <div className="w-10 h-1.5 bg-slate-950/80 rounded-full mb-3 sm:mb-4 shadow-inner border border-slate-800/50 pointer-events-none"></div>
+          {/* Ranura para el clip */}
+          <div className="w-12 md:w-16 h-1.5 md:h-2 bg-slate-950/80 rounded-full mb-3 sm:mb-4 lg:mb-5 shadow-inner border border-slate-800/50 pointer-events-none"></div>
 
-          {/* Contenedor de la foto con proporción más cuadrada (aspect-[4/5]) */}
-          <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none">
+          {/* Contenedor de la foto */}
+          <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none shadow-sm">
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
@@ -179,8 +180,8 @@ const DraggableBadge = () => {
             <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
           
-          {/* Texto espaciado correctamente */}
-          <div className="text-[8px] sm:text-[9px] md:text-[10px] text-slate-400 tracking-[0.1em] text-center font-mono mt-4 mb-1 uppercase font-semibold pointer-events-none w-full">
+          {/* Texto: Aumenta la fuente en pantallas grandes para ser legible */}
+          <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base text-slate-400 tracking-[0.1em] text-center font-mono mt-4 lg:mt-5 mb-1 lg:mb-2 uppercase font-semibold pointer-events-none w-full">
             <span className="block mb-1 text-slate-300">Computer Eng.</span>
             <span className="block text-cyan-500/80 tracking-[0.2em]">2026</span>
           </div>
@@ -232,7 +233,7 @@ export default function AboutMe() {
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.04), transparent 40%)`
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.04), transparent 40%)`
         }}
       />
 
@@ -248,7 +249,6 @@ export default function AboutMe() {
           padding: 0;
         }
 
-        /* Animación suave para el estado inactivo del gafete */
         @keyframes swing {
           0% { transform: rotate(2deg); }
           50% { transform: rotate(-2deg); }
@@ -275,39 +275,42 @@ export default function AboutMe() {
 
       <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- 1. SECCIÓN HERO --- */}
-        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-5xl mx-auto pt-16 pb-10">
+        {/* --- 1. SECCIÓN HERO (Diseño Responsivo Split en Desktop) --- */}
+        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
           
-          <div className="w-full flex flex-col items-center justify-center flex-grow">
+          {/* Usamos flex-col para móvil y lg:flex-row-reverse para escritorio */}
+          <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow">
             
-            {/* NUEVO GAFETE INTERACTIVO */}
-            <DraggableBadge />
+            {/* Derecha en Escritorio / Arriba en Móvil: Gafete colgando */}
+            <div className="w-full lg:w-[45%] flex justify-center lg:justify-end lg:pr-10 mb-8 lg:mb-0">
+              <DraggableBadge />
+            </div>
 
-            {/* Textos y Botones */}
-            <div className="text-center w-full max-w-3xl mx-auto animate-[fade-in_1.5s_ease-out]">
+            {/* Izquierda en Escritorio / Abajo en Móvil: Textos y Botones */}
+            <div className="w-full lg:w-[55%] text-center lg:text-left flex flex-col items-center lg:items-start animate-[fade-in_1.5s_ease-out]">
               <p className="text-slate-400 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-4">
                 Welcome to my portfolio
               </p>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-2 tracking-tight leading-tight">
-                Erick Alexander Castillo
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 tracking-tight leading-tight">
+                Erick Alexander <br className="hidden lg:block"/> Castillo
               </h1>
               
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mb-8 tracking-tight">
                 Full-Stack Developer
               </h2>
               
-              <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-10">
+              <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed max-w-sm sm:max-w-2xl lg:max-w-xl mx-auto lg:mx-0 mb-10">
                 I build atmospheric, high-performance web experiences with React, 
                 Node.js and modern AI integrations.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full sm:w-auto">
                 <a
                   href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
                 >
                   <span className="font-extrabold font-serif">in</span>
                   LinkedIn
@@ -317,7 +320,7 @@ export default function AboutMe() {
                   href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-violet-500/50 text-violet-400 hover:bg-violet-500/10 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-violet-500/50 text-violet-400 hover:bg-violet-500/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
                 >
                   <MessageCircle size={18} className="md:w-[20px] md:h-[20px]" />
                   WhatsApp
@@ -325,13 +328,14 @@ export default function AboutMe() {
 
                 <a
                   href="mailto:erick.castillodesign@gmail.com?subject=Contacto%20desde%20tu%20web"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:bg-slate-800 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:bg-slate-800 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
                 >
                   <Mail size={18} className="md:w-[20px] md:h-[20px]" />
                   Email
                 </a>
               </div>
             </div>
+
           </div>
 
           <div className="flex justify-center pb-8 w-full mt-auto">
