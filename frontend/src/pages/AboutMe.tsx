@@ -48,8 +48,7 @@ const DraggableBadge = () => {
   const pos = useRef({ x: 0, y: 0 }); // Posición actual de arrastre
   const vel = useRef({ x: 0, y: 0 }); // Velocidad para el rebote
   const startMouse = useRef({ x: 0, y: 0 });
-  const animationRef = useRef<number>();
-
+  const animationRef = useRef<number | null>(null);
   // Actualiza el DOM directamente (sin re-renders de React) para 60fps ultra fluidos
   const updateTransform = () => {
     if (!containerRef.current || !badgeRef.current || !ropeRef.current) return;
