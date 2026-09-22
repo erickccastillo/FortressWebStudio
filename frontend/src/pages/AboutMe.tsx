@@ -48,7 +48,8 @@ const DraggableBadge = () => {
   const pos = useRef({ x: 0, y: 0 }); // Posición actual de arrastre
   const vel = useRef({ x: 0, y: 0 }); // Velocidad para el rebote
   const startMouse = useRef({ x: 0, y: 0 });
-  const animationRef = useRef<number | null>(null);
+  const animationRef = useRef<number>(0);
+
   // Actualiza el DOM directamente (sin re-renders de React) para 60fps ultra fluidos
   const updateTransform = () => {
     if (!containerRef.current || !badgeRef.current || !ropeRef.current) return;
@@ -74,12 +75,12 @@ const DraggableBadge = () => {
     if (isDragging.current) return;
 
     // Físicas X (Balanceo tipo péndulo)
-    vel.current.x += -pos.current.x * 0.04; // Tensión (Qué tan fuerte regresa)
-    vel.current.x *= 0.94; // Fricción (Qué tanto tarda en detenerse)
+    vel.current.x += -pos.current.x * 0.04; 
+    vel.current.x *= 0.94; 
 
     // Físicas Y (Rebote tipo liga/resorte)
-    vel.current.y += -pos.current.y * 0.15; // Mayor tensión vertical
-    vel.current.y *= 0.82; // Fricción más alta para que el rebote pare antes
+    vel.current.y += -pos.current.y * 0.15; 
+    vel.current.y *= 0.82; 
 
     pos.current.x += vel.current.x;
     pos.current.y += vel.current.y;
@@ -126,7 +127,7 @@ const DraggableBadge = () => {
 
       // Limitar distancias para que se sienta pesado/resistente
       pos.current.x = Math.max(-250, Math.min(250, newX * 0.6));
-      pos.current.y = Math.max(-20, Math.min(180, newY * 0.6)); // No deja subirlo mucho, pero sí bajarlo
+      pos.current.y = Math.max(-20, Math.min(180, newY * 0.6)); 
 
       updateTransform();
     };
@@ -134,7 +135,6 @@ const DraggableBadge = () => {
     const handleUp = () => {
       if (!isDragging.current) return;
       isDragging.current = false;
-      // Iniciar físicas de regreso al soltar
       animationRef.current = requestAnimationFrame(animatePhysics);
     };
 
@@ -166,30 +166,36 @@ const DraggableBadge = () => {
         {/* Cuerda que se Estira */}
         <div 
           ref={ropeRef}
-          className="w-[1.5px] h-16 md:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
+          className="w-[1.5px] h-12 sm:h-16 md:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
-        {/* Gafete que Traslada (Más grande como lo pediste) */}
+        {/* Gafete / Tarjeta FÍSICA PROPORCIONADA */}
         <div 
           ref={badgeRef}
           onMouseDown={handleDown}
           onTouchStart={handleDown}
-          className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          // Ancho fijo responsivo. El alto se adaptará automáticamente gracias al aspect-[3/4] de la imagen
+          className="w-24 sm:w-28 md:w-32 relative bg-slate-900 border border-slate-700 rounded-xl p-2 sm:p-2.5 pt-3 sm:pt-4 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
           style={{ willChange: 'transform' }}
         >
-          {/* Contenedor de la foto */}
-          <div className="w-20 h-24 sm:w-24 sm:h-28 md:w-28 md:h-32 rounded-xl overflow-hidden bg-slate-800 relative group pointer-events-none">
+          {/* Ranura para el clip (Detalle de realismo) */}
+          <div className="w-8 h-1.5 bg-slate-950/80 rounded-full mb-3 shadow-inner border border-slate-800/50 pointer-events-none"></div>
+
+          {/* Contenedor de la foto con proporción perfecta de retrato (3:4) */}
+          <div className="w-full aspect-[3/4] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none">
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
               className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 border border-slate-700/50 rounded-xl"></div>
+            <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
-          {/* Texto Restaurado */}
-          <div className="text-[9px] md:text-[10px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none">
-            Computer Engineer - 2026
+          
+          {/* Texto acomodado para caber bien en el nuevo formato */}
+          <div className="text-[7px] sm:text-[8px] md:text-[9px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none w-full">
+            <span className="block mb-0.5 text-slate-300">Computer Eng.</span>
+            <span className="block text-cyan-500/80">2026</span>
           </div>
         </div>
       </div>
