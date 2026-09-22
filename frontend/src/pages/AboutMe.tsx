@@ -42,6 +42,103 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
+// --- COMPONENTE: Gafete Interactivo, Arrastrable y Elástico ---
+const DraggableBadge = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    dragStart.current = { x: clientX - position.x, y: clientY - position.y };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+      const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+      
+      let newX = clientX - dragStart.current.x;
+      let newY = clientY - dragStart.current.y;
+      
+      // Añadimos "resistencia" para que se sienta como física elástica
+      newX = newX * 0.4;
+      newY = newY * 0.4;
+
+      // Límites físicos del arrastre
+      if (newY < -10) newY = -10; 
+      if (newY > 150) newY = 150; // Límite de estiramiento hacia abajo
+      if (newX < -150) newX = -150;
+      if (newX > 150) newX = 150;
+
+      setPosition({ x: newX, y: newY });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setPosition({ x: 0, y: 0 }); // Restablece la posición para el "Snap" de rebote
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleMouseMove);
+      window.addEventListener('touchend', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleMouseMove);
+      window.removeEventListener('touchend', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  // Cálculos matemáticos para el efecto gelatina (Estiramiento visual)
+  const rotation = position.x * 0.15; 
+  const stretchY = 1 + Math.max(0, position.y) * 0.003; // Se alarga hacia abajo
+  const stretchX = 1 - Math.max(0, position.y) * 0.001; // Se hace más delgado horizontalmente
+
+  return (
+    <div className="flex flex-col items-center mb-10 z-20 animate-[fade-in_1s_ease-out]">
+      <div 
+        className={`flex flex-col items-center origin-top select-none ${
+          !isDragging ? 'animate-swing transition-transform duration-[800ms] ease-elastic' : ''
+        }`}
+        style={{
+          transform: isDragging ? `rotate(${rotation}deg) scaleX(${stretchX}) scaleY(${stretchY})` : undefined
+        }}
+      >
+        {/* Cuerda / Hilo */}
+        <div className="w-[1.5px] h-10 md:h-14 lg:h-16 bg-gradient-to-b from-transparent to-cyan-500/80 pointer-events-none"></div>
+        
+        {/* Gafete / Tarjeta */}
+        <div 
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleMouseDown}
+          className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+        >
+          {/* Contenedor de la foto (Tamaño más pequeño y estilizado) */}
+          <div className="w-16 h-20 sm:w-20 sm:h-24 md:w-24 md:h-28 rounded-xl overflow-hidden bg-slate-800 relative group pointer-events-none">
+            <img 
+              src={miFoto} 
+              alt="Erick Alexander Castillo" 
+              className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 border border-slate-700/50 rounded-xl"></div>
+          </div>
+          {/* Texto ligeramente abreviado para caber en el nuevo tamaño */}
+          <div className="text-[8px] md:text-[9px] text-slate-400 tracking-[0.15em] text-center font-mono mt-3 mb-1 uppercase font-semibold pointer-events-none">
+            Comp. Eng. '26
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENTE PRINCIPAL ---
 export default function AboutMe() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -94,10 +191,25 @@ export default function AboutMe() {
       <style dangerouslySetInnerHTML={{__html: `
         html { scroll-behavior: smooth !important; }
         body {
-          background-color: #020617 !important; /* slate-950 */
+          background-color: #020617 !important;
           overflow-x: hidden !important;
           margin: 0;
           padding: 0;
+        }
+
+        /* Animación del balanceo y físicas de rebote del gafete */
+        @keyframes swing {
+          0% { transform: rotate(3deg); }
+          50% { transform: rotate(-3deg); }
+          100% { transform: rotate(3deg); }
+        }
+        .animate-swing {
+          animation: swing 6s ease-in-out infinite;
+          transform-origin: top center;
+        }
+        .ease-elastic {
+          /* Esta curva matemática es el secreto del "efecto resorte" al soltarlo */
+          transition-timing-function: cubic-bezier(0.4, 2.5, 0.4, 1);
         }
       `}} />
 
@@ -116,27 +228,13 @@ export default function AboutMe() {
 
       <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- 1. SECCIÓN HERO (Fondo slate-950) --- */}
+        {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-5xl mx-auto pt-16 pb-10">
           
           <div className="w-full flex flex-col items-center justify-center flex-grow">
-            {/* Foto colgante responsiva (Ahora estática y elegante) */}
-            <div className="flex flex-col items-center mb-10 animate-[fade-in_1s_ease-out]">
-              <div className="w-[1px] h-12 md:h-16 lg:h-20 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
-              <div className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_-10px_rgba(45,212,191,0.15)] backdrop-blur-md flex flex-col items-center">
-                <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
-                  <img 
-                    src={miFoto} 
-                    alt="Erick Alexander Castillo" 
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 border border-slate-700/50 rounded-xl pointer-events-none"></div>
-                </div>
-                <div className="text-[9px] md:text-[10px] text-slate-400 tracking-[0.2em] text-center font-mono mt-3 mb-1 uppercase font-semibold">
-                  Computer Engineer - 2026
-                </div>
-              </div>
-            </div>
+            
+            {/* AQUÍ INYECTAMOS EL NUEVO GAFETE INTERACTIVO */}
+            <DraggableBadge />
 
             {/* Textos y Botones */}
             <div className="text-center w-full max-w-3xl mx-auto animate-[fade-in_1.5s_ease-out]">
@@ -157,7 +255,6 @@ export default function AboutMe() {
                 Node.js and modern AI integrations.
               </p>
 
-              {/* Botones rediseñados para coincidir con el nuevo tema */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 w-full sm:w-auto">
                 <a
                   href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
@@ -200,7 +297,7 @@ export default function AboutMe() {
         {/* LÍNEA DIVISORA */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
 
-        {/* --- 2. SECCIÓN MISIÓN (Fondo slate-900) --- */}
+        {/* --- 2. SECCIÓN MISIÓN --- */}
         <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <FadeInSection>
@@ -243,7 +340,7 @@ export default function AboutMe() {
         {/* LÍNEA DIVISORA */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
 
-        {/* --- 3. SECCIÓN SOBRE MÍ (Fondo slate-950) --- */}
+        {/* --- 3. SECCIÓN SOBRE MÍ --- */}
         <section className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <FadeInSection>
@@ -257,7 +354,6 @@ export default function AboutMe() {
 
             <FadeInSection delay="delay-100">
               <div className="bg-slate-900/50 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl w-full">
-                {/* Imagen de fondo / Banner */}
                 <div className="h-48 sm:h-64 md:h-[350px] lg:h-[400px] relative bg-slate-950 w-full border-b border-slate-800">
                   <img 
                     src={fondo} 
@@ -272,7 +368,6 @@ export default function AboutMe() {
                   </div>
                 </div>
                 
-                {/* Contenido */}
                 <div className="p-8 md:p-12 lg:p-16">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
@@ -284,7 +379,6 @@ export default function AboutMe() {
                     </p>
                   </div>
                   
-                  {/* Skills Pills */}
                   <div className="flex flex-wrap gap-3 mt-10 md:mt-12">
                     {['React', 'Node.js', 'TypeScript', 'AI Integration', 'PostgreSQL', 'Tailwind CSS'].map((skill) => (
                       <span key={skill} className="px-5 py-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-sm md:text-base rounded-full font-medium">
@@ -301,7 +395,7 @@ export default function AboutMe() {
         {/* LÍNEA DIVISORA */}
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
 
-        {/* --- 4. SECCIÓN EXPERIENCIA (Fondo slate-900) --- */}
+        {/* --- 4. SECCIÓN EXPERIENCIA --- */}
         <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <FadeInSection>
