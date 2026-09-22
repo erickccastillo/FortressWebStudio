@@ -1,13 +1,51 @@
 import { useState, useEffect, useRef } from 'react';
-import { 
-  MessageCircle, 
-  Mail 
-} from 'lucide-react';
+import type { ReactNode } from 'react';
+import { MessageCircle, Mail } from 'lucide-react';
+
+// Asegúrate de que las rutas a tus imágenes sean correctas
 import miFoto from '../images/photo.png';
 import fondo from '../images/fondo.png';
 
+// --- COMPONENTE: Animación de Scroll (Aparición/Desaparición) ---
+const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, delay?: string }) => {
+  const [isVisible, setVisible] = useState(false);
+  const domRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        setVisible(entry.isIntersecting);
+      });
+    }, { 
+      threshold: 0.15 
+    });
+
+    const currentRef = domRef.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={domRef}
+      className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay} ${
+        isVisible 
+          ? 'opacity-100 translate-y-0 scale-100' 
+          : 'opacity-0 translate-y-12 scale-95'
+      }`}
+    >
+      {children}
+    </div>
+  );
+};
+
+// --- COMPONENTE PRINCIPAL ---
 export default function AboutMe() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -15,276 +53,316 @@ export default function AboutMe() {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-[#050810] text-slate-200 font-sans selection:bg-cyan-500/30 relative flex flex-col w-full overflow-x-hidden"
+      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       
-      {/* Efecto de resplandor de fondo interactivo (Solo PC) */}
+      {/* Fondo Interactivo Suave */}
       <div 
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300 hidden lg:block"
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(6, 182, 212, 0.08), transparent 40%)`
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.04), transparent 40%)`
         }}
       />
-      
-      {/* Fallback de fondo estático para móviles y tablets */}
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/10 via-[#050810] to-[#050810] lg:hidden"></div>
 
-      {/* Humo animado (se ajusta en móvil para no desbordar) */}
-      <div className="fixed -left-[30%] md:-left-[10%] top-[10%] w-[80%] md:w-[40%] lg:w-[30%] h-[60%] bg-cyan-900/20 rounded-full blur-[80px] md:blur-[130px] pointer-events-none z-0 animate-smoke-left"></div>
-      <div className="fixed -right-[30%] md:-right-[10%] top-[20%] w-[80%] md:w-[40%] lg:w-[30%] h-[60%] bg-cyan-900/20 rounded-full blur-[80px] md:blur-[130px] pointer-events-none z-0 animate-smoke-right"></div>
+      {/* Fallback estático para móviles */}
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/5 via-slate-950 to-slate-950 lg:hidden"></div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        /* Forzar el fondo oscuro y eliminar scroll horizontal a nivel global */
-        html, body {
-          background-color: #050810 !important;
+        html { scroll-behavior: smooth !important; }
+        body {
+          background-color: #020617 !important; /* slate-950 */
           overflow-x: hidden !important;
           margin: 0;
           padding: 0;
-          width: 100%;
-        }
-
-        @keyframes swing {
-          0% { transform: rotate(3deg); }
-          50% { transform: rotate(-3deg); }
-          100% { transform: rotate(3deg); }
-        }
-        .animate-swing {
-          animation: swing 4s ease-in-out infinite;
-          transform-origin: top center;
-        }
-        
-        @keyframes smoke-left {
-          0% { transform: translateX(-10%) scale(1); opacity: 0.3; }
-          50% { transform: translateX(10%) scale(1.1); opacity: 0.7; }
-          100% { transform: translateX(-10%) scale(1); opacity: 0.3; }
-        }
-        @keyframes smoke-right {
-          0% { transform: translateX(10%) scale(1); opacity: 0.3; }
-          50% { transform: translateX(-10%) scale(1.1); opacity: 0.7; }
-          100% { transform: translateX(10%) scale(1); opacity: 0.3; }
-        }
-        .animate-smoke-left {
-          animation: smoke-left 12s ease-in-out infinite;
-        }
-        .animate-smoke-right {
-          animation: smoke-right 15s ease-in-out infinite;
         }
       `}} />
 
-      <main className="relative z-10 w-full flex flex-col items-center pb-12 md:pb-20">
+      {/* --- BOTÓN FLOTANTE --- */}
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(45,212,191,0.3)] text-cyan-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-cyan-500/50 ${
+          showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+        }`}
+        aria-label="Back to top"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+      </button>
+
+      <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- SECCIÓN HERO --- */}
-        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-[1200px] mx-auto py-10">
+        {/* --- 1. SECCIÓN HERO (Fondo slate-950) --- */}
+        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-5xl mx-auto pt-16 pb-10">
           
-          {/* Foto colgante responsiva */}
-          <div className="flex flex-col items-center mb-6 md:mb-8 animate-swing origin-top">
-            <div className="w-[1px] h-12 md:h-16 lg:h-20 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
-            <div className="relative bg-[#0d1421] border border-cyan-900/40 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_rgba(6,182,212,0.1)] backdrop-blur-md flex flex-col items-center">
-              <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
-                <img 
-                  src={miFoto} 
-                  alt="Erick Alexander Castillo" 
-                  className="w-full h-full object-cover object-center"
-                />
-                <div className="absolute inset-0 border border-cyan-500/30 rounded-xl pointer-events-none"></div>
-              </div>
-              <div className="text-[9px] md:text-[10px] text-cyan-500 tracking-[0.2em] text-center font-mono mt-2 md:mt-3 mb-1 uppercase font-semibold opacity-80">
-                Computer Engineer - 2026
-              </div>
-            </div>
-          </div>
-
-          {/* Textos y Botones */}
-          <div className="text-center w-full max-w-3xl mx-auto">
-            <p className="text-cyan-500 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-3 md:mb-4">
-              Welcome to my portfolio
-            </p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 tracking-tight leading-tight">
-              Erick Alexander Castillo
-            </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-cyan-400 mb-6 md:mb-8 tracking-tight">
-              Full-Stack Developer
-            </h2>
-            
-            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-8 md:mb-10">
-              I build atmospheric, high-performance web experiences with React, 
-              Node.js and modern AI integrations.
-            </p>
-
-            {/* Contenedor de botones adaptativo */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 w-full sm:w-auto">
-              <a
-                href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-cyan-400 hover:bg-cyan-300 text-slate-950 px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-bold transition-all duration-200 text-sm md:text-base shadow-lg shadow-cyan-500/20 hover:-translate-y-1"
-              >
-                <span className="font-extrabold">in</span>
-                LinkedIn
-              </a>
-
-              <a
-                href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 hover:bg-[#151e2f] text-white px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base hover:-translate-y-1"
-              >
-                <MessageCircle size={18} className="md:w-[20px] md:h-[20px]" />
-                WhatsApp
-              </a>
-
-              <a
-                href="mailto:erick.castillodesign@gmail.com?subject=Contacto%20desde%20tu%20web"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#0f1623] border border-slate-700 hover:border-slate-500 hover:bg-[#151e2f] text-white px-6 sm:px-8 py-3 md:py-3.5 rounded-full font-medium transition-all duration-200 text-sm md:text-base hover:-translate-y-1"
-              >
-                <Mail size={18} className="md:w-[20px] md:h-[20px]" />
-                Email
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Icono de scroll (Visible en todas las pantallas) */}
-<div className="flex justify-center pb-12 md:pb-20 w-full">
-  <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
-      <div className="w-1.5 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
-  </div>
-</div>
-    {/* --- SECCIÓN MISIÓN --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-              My Mission
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-          </div>
-        
-          <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-8 md:p-12 hover:border-cyan-900/50 transition-all">
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
-              I decided to begin my journey as an independent web developer with a clear
-              purpose: <span className="text-cyan-400 font-medium">
-              helping businesses build meaningful connections with the people they serve.</span>
-              I believe technology should do more than automate processes. It should
-              create trust, improve communication, and strengthen relationships between
-              brands and their communities.
-            </p>
-        
-            <p className="text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl mt-6">
-              Through modern web development, intuitive design, and intelligent digital
-              solutions, my goal is to transform ideas into experiences that bring
-              businesses and people closer together while driving long-term growth.
-            </p>
-          </div>
-        </section>
-        {/* --- SECCIÓN SOBRE MÍ --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-             
-              <span className="leading-tight">About Me & Academic Trajectory</span>
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
-          </div>
-
-          <div className="bg-[#0d131f] border border-slate-800/80 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl w-full transition-all hover:border-slate-700">
-            <div className="h-48 sm:h-64 md:h-[350px] lg:h-[450px] relative bg-slate-900 w-full">
-              <img 
-                src={fondo} 
-                alt="CUCEI Architecture" 
-                className="w-full h-full object-cover opacity-40 mix-blend-luminosity"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0d131f] via-[#0d131f]/60 to-transparent"></div>
-              <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8 md:bottom-8 md:left-10 bg-[#0d131f]/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-slate-800/50">
-                <span className="text-xs sm:text-sm md:text-base text-cyan-400 font-mono tracking-widest uppercase">Alma mater • CUCEI UDG</span>
+          <div className="w-full flex flex-col items-center justify-center flex-grow">
+            {/* Foto colgante responsiva (Ahora estática y elegante) */}
+            <div className="flex flex-col items-center mb-10 animate-[fade-in_1s_ease-out]">
+              <div className="w-[1px] h-12 md:h-16 lg:h-20 bg-gradient-to-b from-transparent to-cyan-500/50"></div>
+              <div className="relative bg-slate-900 border border-slate-700 rounded-2xl p-2 md:p-3 shadow-[0_0_40px_-10px_rgba(45,212,191,0.15)] backdrop-blur-md flex flex-col items-center">
+                <div className="w-24 h-28 sm:w-28 sm:h-32 md:w-32 md:h-36 rounded-xl overflow-hidden bg-slate-800 relative group">
+                  <img 
+                    src={miFoto} 
+                    alt="Erick Alexander Castillo" 
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 border border-slate-700/50 rounded-xl pointer-events-none"></div>
+                </div>
+                <div className="text-[9px] md:text-[10px] text-slate-400 tracking-[0.2em] text-center font-mono mt-3 mb-1 uppercase font-semibold">
+                  Computer Engineer - 2026
+                </div>
               </div>
             </div>
-            
-            <div className="p-6 sm:p-8 md:p-12 lg:p-16">
-              <div className="space-y-5 md:space-y-8 text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed md:leading-loose max-w-5xl">
-                <p>
-                  I'm a Computer engineer graduate with a strong university foundation in software engineering, algorithms and 
-                  distributed systems. During my studies I specialized in modern web development, focusing on <span className="text-cyan-400 font-medium">React</span> and <span className="text-cyan-400 font-medium">Node.js</span>, and led several academic projects around machine learning and AI integration.
-                </p>
-                <p>
-                  Today I bring 2 years of experience to designing and shipping full-stack products that combine clean architecture with AI-powered features — from intelligent automation pipelines to high-performance systems — always with an obsession for detail, performance, and great user experience.
-                </p>
-              </div>
+
+            {/* Textos y Botones */}
+            <div className="text-center w-full max-w-3xl mx-auto animate-[fade-in_1.5s_ease-out]">
+              <p className="text-slate-400 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-4">
+                Welcome to my portfolio
+              </p>
               
-              <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4 mt-8 md:mt-12">
-                {['React', 'Node.js', 'TypeScript', 'AI Integration', 'PostgreSQL', 'Tailwind CSS'].map((skill) => (
-                  <span key={skill} className="px-4 md:px-5 py-2 md:py-2.5 bg-[#121b29] border border-slate-700/50 text-cyan-300 text-xs sm:text-sm md:text-base rounded-full hover:bg-cyan-900/20 hover:border-cyan-500/50 transition-all cursor-default shadow-sm">
-                    {skill}
-                  </span>
-                ))}
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-2 tracking-tight leading-tight">
+                Erick Alexander Castillo
+              </h1>
+              
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mb-8 tracking-tight">
+                Full-Stack Developer
+              </h2>
+              
+              <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-sm sm:max-w-2xl mx-auto mb-10">
+                I build atmospheric, high-performance web experiences with React, 
+                Node.js and modern AI integrations.
+              </p>
+
+              {/* Botones rediseñados para coincidir con el nuevo tema */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4 w-full sm:w-auto">
+                <a
+                  href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                >
+                  <span className="font-extrabold font-serif">in</span>
+                  LinkedIn
+                </a>
+
+                <a
+                  href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-violet-500/50 text-violet-400 hover:bg-violet-500/10 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                >
+                  <MessageCircle size={18} className="md:w-[20px] md:h-[20px]" />
+                  WhatsApp
+                </a>
+
+                <a
+                  href="mailto:erick.castillodesign@gmail.com?subject=Contacto%20desde%20tu%20web"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 hover:bg-slate-800 px-6 sm:px-8 py-3 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                >
+                  <Mail size={18} className="md:w-[20px] md:h-[20px]" />
+                  Email
+                </a>
               </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center pb-8 w-full mt-auto">
+            <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
+                <div className="w-1.5 h-2 bg-violet-400 rounded-full animate-bounce"></div>
             </div>
           </div>
         </section>
 
-        {/* --- SECCIÓN EXPERIENCIA --- */}
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-20 mx-auto">
-          <div className="mb-8 md:mb-12">
-            <h3 className="flex items-center gap-3 text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-            
-              <span>Professional Experience</span>
-            </h3>
-            <div className="h-[2px] w-16 bg-cyan-500 mt-4"></div>
+        {/* LÍNEA DIVISORA */}
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+
+        {/* --- 2. SECCIÓN MISIÓN (Fondo slate-900) --- */}
+        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <FadeInSection>
+              <div className="mb-10 md:mb-14 flex flex-col items-center">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+                  My Mission
+                </h3>
+                <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-violet-400 mt-6 rounded-full"></div>
+              </div>
+            </FadeInSection>
+          
+            <div className="space-y-8 text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose text-left md:text-center">
+              <FadeInSection delay="delay-100">
+                <p>
+                  I decided to begin my journey as an independent web developer with a clear
+                  purpose: <span className="text-cyan-400 font-medium">
+                  helping businesses build meaningful connections with the people they serve.</span>
+                </p>
+              </FadeInSection>
+
+              <FadeInSection delay="delay-200">
+                <p>
+                  I believe technology should do more than automate processes. It should
+                  create trust, improve communication, and strengthen relationships between
+                  brands and their communities.
+                </p>
+              </FadeInSection>
+          
+              <FadeInSection delay="delay-300">
+                <p>
+                  Through modern web development, intuitive design, and intelligent digital
+                  solutions, my goal is to transform ideas into experiences that bring
+                  businesses and people closer together while driving long-term growth.
+                </p>
+              </FadeInSection>
+            </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 w-full">
-            
-            <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col hover:border-cyan-900/50 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(6,182,212,0.05)] transition-all duration-300 group">
-              <div className="mb-5 md:mb-6">
-                <span className="inline-block px-4 py-1.5 bg-[#121b29] text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-4 group-hover:border-cyan-900/50 group-hover:text-cyan-400 transition-colors">
-                  2026 — Present
-                </span>
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Data Analyst Intern</h4>
-                <h5 className="text-cyan-400 text-base sm:text-lg md:text-xl font-medium">Eaton Cooper Power Series</h5>
+        {/* LÍNEA DIVISORA */}
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+
+        {/* --- 3. SECCIÓN SOBRE MÍ (Fondo slate-950) --- */}
+        <section className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <FadeInSection>
+              <div className="mb-12 md:mb-16 flex flex-col items-center">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
+                  About Me & Academic Trajectory
+                </h3>
+                <div className="h-1 w-32 bg-gradient-to-r from-violet-400 to-cyan-400 mt-6 rounded-full"></div>
               </div>
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed md:leading-loose mb-8 flex-grow">
-                Accelerated workflow efficiency through targeted data reporting, database 
-                administration, and advanced Office-based information management.
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3 mt-auto">
-                {['Data Analysis', 'Database Admin', 'Reporting', 'Management'].map((tech) => (
-                  <span key={tech} className="px-3 py-1.5 bg-[#121b29] border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg group-hover:border-slate-700 transition-colors">
-                    {tech}
-                  </span>
-                ))}
+            </FadeInSection>
+
+            <FadeInSection delay="delay-100">
+              <div className="bg-slate-900/50 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl w-full">
+                {/* Imagen de fondo / Banner */}
+                <div className="h-48 sm:h-64 md:h-[350px] lg:h-[400px] relative bg-slate-950 w-full border-b border-slate-800">
+                  <img 
+                    src={fondo} 
+                    alt="CUCEI Architecture" 
+                    className="w-full h-full object-cover opacity-30 mix-blend-luminosity"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-slate-900/20 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8 md:bottom-8 md:left-10 bg-slate-950/80 px-5 py-2.5 rounded-xl backdrop-blur-md border border-slate-800">
+                    <span className="text-xs sm:text-sm md:text-base text-violet-400 font-mono tracking-widest uppercase">
+                      Alma mater • CUCEI UDG
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Contenido */}
+                <div className="p-8 md:p-12 lg:p-16">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
+                      I'm a Computer engineer graduate with a strong university foundation in software engineering, algorithms and 
+                      distributed systems. During my studies I specialized in modern web development, focusing on <span className="text-cyan-400 font-medium">React</span> and <span className="text-cyan-400 font-medium">Node.js</span>, and led several academic projects around machine learning and AI integration.
+                    </p>
+                    <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
+                      Today I bring 2 years of experience to designing and shipping full-stack products that combine clean architecture with AI-powered features — from intelligent automation pipelines to high-performance systems — always with an obsession for detail, performance, and great user experience.
+                    </p>
+                  </div>
+                  
+                  {/* Skills Pills */}
+                  <div className="flex flex-wrap gap-3 mt-10 md:mt-12">
+                    {['React', 'Node.js', 'TypeScript', 'AI Integration', 'PostgreSQL', 'Tailwind CSS'].map((skill) => (
+                      <span key={skill} className="px-5 py-2.5 bg-slate-950 border border-slate-700 text-slate-200 text-sm md:text-base rounded-full font-medium">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
+            </FadeInSection>
+          </div>
+        </section>
+
+        {/* LÍNEA DIVISORA */}
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+
+        {/* --- 4. SECCIÓN EXPERIENCIA (Fondo slate-900) --- */}
+        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <FadeInSection>
+              <div className="mb-12 md:mb-16 flex flex-col items-center">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
+                  Professional Experience
+                </h3>
+                <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-violet-400 mt-6 rounded-full"></div>
+              </div>
+            </FadeInSection>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 w-full">
+              
+              <FadeInSection delay="delay-100">
+                <div className="bg-slate-950 border-t-4 border-t-cyan-400 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
+                  <div className="mb-6">
+                    <span className="inline-block px-4 py-1.5 bg-slate-900 text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-6">
+                      2026 — Present
+                    </span>
+                    <h4 className="text-2xl md:text-3xl font-bold text-white mb-2">Data Analyst Intern</h4>
+                    <h5 className="text-cyan-400 text-lg md:text-xl font-medium">Eaton Cooper Power Series</h5>
+                  </div>
+                  <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 flex-grow">
+                    Accelerated workflow efficiency through targeted data reporting, database 
+                    administration, and advanced Office-based information management.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Data Analysis', 'Database Admin', 'Reporting', 'Management'].map((tech) => (
+                      <span key={tech} className="px-3 py-1.5 bg-slate-900 border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </FadeInSection>
+
+              <FadeInSection delay="delay-200">
+                <div className="bg-slate-950 border-t-4 border-t-violet-400 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
+                  <div className="mb-6">
+                    <span className="inline-block px-4 py-1.5 bg-slate-900 text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-6">
+                      2024 — 2026
+                    </span>
+                    <h4 className="text-2xl md:text-3xl font-bold text-white mb-2">Assistant Programmer</h4>
+                    <h5 className="text-violet-400 text-lg md:text-xl font-medium">DIVTIC LAB, UDG</h5>
+                  </div>
+                  <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 flex-grow">
+                    Supported development activities related to databases, web applications, 
+                    and mobile programming. Applied academic knowledge to real technical projects 
+                    in a collaborative lab environment.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Web Dev', 'Databases', 'Mobile', 'Problem Solving'].map((tech) => (
+                      <span key={tech} className="px-3 py-1.5 bg-slate-900 border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </FadeInSection>
+
             </div>
-
-            <div className="bg-[#0d131f] border border-slate-800 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-10 flex flex-col hover:border-cyan-900/50 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(6,182,212,0.05)] transition-all duration-300 group">
-              <div className="mb-5 md:mb-6">
-                <span className="inline-block px-4 py-1.5 bg-[#121b29] text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-4 group-hover:border-cyan-900/50 group-hover:text-cyan-400 transition-colors">
-                  2024 — 2026
-                </span>
-                <h4 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">Assistant Programmer</h4>
-                <h5 className="text-cyan-400 text-base sm:text-lg md:text-xl font-medium">DIVTIC LAB, UDG</h5>
-              </div>
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed md:leading-loose mb-8 flex-grow">
-                Supported development activities related to databases, web applications, 
-                and mobile programming. Applied academic knowledge to real technical projects 
-                in a collaborative lab environment.
-              </p>
-              <div className="flex flex-wrap gap-2 sm:gap-3 mt-auto">
-                {['Web Dev', 'Databases', 'Mobile', 'Problem Solving'].map((tech) => (
-                  <span key={tech} className="px-3 py-1.5 bg-[#121b29] border border-slate-800 text-slate-300 text-xs sm:text-sm rounded-lg group-hover:border-slate-700 transition-colors">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
           </div>
         </section>
 
