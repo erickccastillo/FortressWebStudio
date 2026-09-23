@@ -337,11 +337,6 @@ export default function AboutMe() {
 
           </div>
 
-          <div className="flex justify-center pb-8 w-full mt-auto">
-            <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center pt-2">
-                <div className="w-1.5 h-2 bg-violet-400 rounded-full animate-bounce"></div>
-            </div>
-          </div>
         </section>
 
         {/* LÍNEA DIVISORA */}
