@@ -56,8 +56,8 @@ const DraggableBadge = () => {
     const angle = pos.current.x * 0.12; 
     const translateY = pos.current.y;
     
-    // Ajustado para el nuevo tamaño de la cuerda
-    const ropeBaseHeight = 120; 
+    // Altura base ajustada para que coincida con el nuevo tamaño del hilo más corto
+    const ropeBaseHeight = 90; 
     const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
 
     containerRef.current.style.transform = `rotate(${angle}deg)`;
@@ -115,7 +115,6 @@ const DraggableBadge = () => {
       const newX = clientX - startMouse.current.x;
       const newY = clientY - startMouse.current.y;
 
-      // Límites de arrastre ampliados para el nuevo tamaño
       pos.current.x = Math.max(-350, Math.min(350, newX * 0.6));
       pos.current.y = Math.max(-30, Math.min(250, newY * 0.6)); 
 
@@ -152,14 +151,14 @@ const DraggableBadge = () => {
         className="flex flex-col items-center origin-top select-none animate-swing"
         style={{ willChange: 'transform' }}
       >
-        {/* Cuerda: Crece con la pantalla */}
+        {/* Cuerda: Reducida drásticamente para no invadir pantallas tipo laptop */}
         <div 
           ref={ropeRef}
-          className="w-[1.5px] h-12 sm:h-16 md:h-24 lg:h-32 xl:h-40 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
+          className="w-[1.5px] h-8 sm:h-10 md:h-14 lg:h-16 xl:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
-        {/* Gafete: Ahora se adapta drásticamente al tamaño de pantalla */}
+        {/* Gafete: Mantiene su adaptabilidad pero colgará más cerca del clavo */}
         <div 
           ref={badgeRef}
           onMouseDown={handleDown}
@@ -180,7 +179,7 @@ const DraggableBadge = () => {
             <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
           
-          {/* Texto: Aumenta la fuente en pantallas grandes para ser legible */}
+          {/* Texto */}
           <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base text-slate-400 tracking-[0.1em] text-center font-mono mt-4 lg:mt-5 mb-1 lg:mb-2 uppercase font-semibold pointer-events-none w-full">
             <span className="block mb-1 text-slate-300">Computer Eng.</span>
             <span className="block text-cyan-500/80 tracking-[0.2em]">2026</span>
