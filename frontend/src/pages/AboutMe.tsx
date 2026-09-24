@@ -38,7 +38,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Dragón Chino Fluido en Canvas ---
+// --- COMPONENTE: Dragón Chino Fluido en Canvas (ACTUALIZADO) ---
 const FluidChineseDragon = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -61,79 +61,153 @@ const FluidChineseDragon = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    const numSegments = 45; 
-    const segmentSpacing = 4; 
+    // Mayor cantidad de segmentos y menor espacio para un cuerpo más fluido
+    const numSegments = 60; 
+    const segmentSpacing = 2; 
     const history: { x: number, y: number }[] = [];
     let time = 0;
     let animationFrameId: number;
 
     const draw = () => {
-      time += 0.008; 
+      // Velocidad aumentada para que pase más seguido
+      time += 0.015; 
       ctx.clearRect(0, 0, width, height);
 
-      const headX = (width / 2) + Math.sin(time) * (width * 0.8) + Math.cos(time * 0.7) * 300;
-      const headY = (height / 2) + Math.cos(time * 0.8) * (height * 0.6) + Math.sin(time * 1.3) * 200;
+      // Trazo matemático ajustado para que se mantenga más dentro de la pantalla
+      const headX = (width / 2) + Math.sin(time) * (width * 0.45) + Math.cos(time * 1.5) * (width * 0.2);
+      const headY = (height / 2) + Math.cos(time * 1.1) * (height * 0.45) + Math.sin(time * 1.7) * (height * 0.2);
 
       history.unshift({ x: headX, y: headY });
       if (history.length > numSegments * segmentSpacing + 10) {
         history.pop();
       }
 
-      const dragonColor = 'rgba(30, 41, 59, 0.4)'; 
+      // Colores vibrantes y realistas (Rojo y Dorado)
+      const bodyColor = '#dc2626'; // Rojo carmesí
+      const scaleColor = '#fbbf24'; // Dorado
+      const shadowColor = 'rgba(0, 0, 0, 0.3)';
 
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
+      // Dibujar el cuerpo (de la cola a la cabeza)
       for (let i = numSegments - 1; i >= 0; i--) {
         const index = i * segmentSpacing;
         if (index < history.length) {
           const pos = history[index];
-          const size = 12 - (i / numSegments) * 10; 
+          // El cuerpo es más grueso cerca de la cabeza y fino en la cola
+          const size = 18 - (i / numSegments) * 15; 
 
+          // Sombra para dar volumen
           ctx.beginPath();
-          ctx.arc(pos.x, pos.y, Math.max(size, 1), 0, Math.PI * 2);
-          ctx.fillStyle = dragonColor;
+          ctx.arc(pos.x + 2, pos.y + 5, Math.max(size, 1), 0, Math.PI * 2);
+          ctx.fillStyle = shadowColor;
           ctx.fill();
 
-          if (i % 8 === 0 && i !== 0 && index + 1 < history.length) {
-            const prevPos = history[index + 1];
+          // Cuerpo principal
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, Math.max(size, 1), 0, Math.PI * 2);
+          ctx.fillStyle = bodyColor;
+          ctx.fill();
+          
+          // Contorno dorado para simular escamas
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = scaleColor;
+          ctx.stroke();
+
+          // Dibujar patas en segmentos específicos
+          if ((i === 15 || i === 35) && index + 2 < history.length) {
+            const prevPos = history[index + 2];
             const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x);
             
+            // Pata izquierda y derecha
+            [-1, 1].forEach(side => {
+              ctx.beginPath();
+              ctx.moveTo(pos.x, pos.y);
+              const legEndX = pos.x + Math.cos(angle + (Math.PI/2 * side)) * (size + 15);
+              const legEndY = pos.y + Math.sin(angle + (Math.PI/2 * side)) * (size + 15);
+              
+              ctx.quadraticCurveTo(
+                pos.x + Math.cos(angle) * 10, pos.y + Math.sin(angle) * 10,
+                legEndX, legEndY
+              );
+              ctx.strokeStyle = scaleColor;
+              ctx.lineWidth = 3;
+              ctx.stroke();
+            });
+          }
+
+          // Picos dorsales
+          if (i % 3 === 0 && index + 1 < history.length) {
+            const prevPos = history[index + 1];
+            const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x);
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
-            ctx.lineTo(pos.x + Math.cos(angle + Math.PI/2) * (size + 4), pos.y + Math.sin(angle + Math.PI/2) * (size + 4));
-            ctx.strokeStyle = dragonColor;
-            ctx.lineWidth = 1.5;
+            ctx.lineTo(
+              pos.x + Math.cos(angle + Math.PI/2) * (size + 8), 
+              pos.y + Math.sin(angle + Math.PI/2) * (size + 8)
+            );
+            ctx.strokeStyle = '#fef08a'; // Amarillo claro para los picos
+            ctx.lineWidth = 2;
             ctx.stroke();
           }
         }
       }
 
-      if (history.length > 1) {
+      // Dibujar la cabeza
+      if (history.length > 2) {
         const head = history[0];
-        const neck = history[1];
+        const neck = history[2];
         const angle = Math.atan2(head.y - neck.y, head.x - neck.x);
 
+        // Base de la cabeza
         ctx.beginPath();
-        ctx.arc(head.x, head.y, 8, 0, Math.PI * 2);
-        ctx.fillStyle = dragonColor;
+        ctx.arc(head.x, head.y, 22, 0, Math.PI * 2);
+        ctx.fillStyle = bodyColor;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = scaleColor;
+        ctx.stroke();
+
+        // Hocico
+        ctx.beginPath();
+        ctx.ellipse(
+          head.x + Math.cos(angle) * 15, head.y + Math.sin(angle) * 15, 
+          12, 18, angle + Math.PI/2, 0, Math.PI * 2
+        );
+        ctx.fillStyle = scaleColor;
         ctx.fill();
 
+        // Ojos brillantes
+        [-1, 1].forEach(side => {
+          const eyeX = head.x + Math.cos(angle + (0.5 * side)) * 10;
+          const eyeY = head.y + Math.sin(angle + (0.5 * side)) * 10;
+          ctx.beginPath();
+          ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#fff';
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(eyeX + Math.cos(angle)*1.5, eyeY + Math.sin(angle)*1.5, 2, 0, Math.PI * 2);
+          ctx.fillStyle = '#000'; // Pupila
+          ctx.fill();
+        });
+
+        // Bigotes largos fluidos (Mostachos de dragón)
         ctx.beginPath();
-        ctx.moveTo(head.x, head.y);
+        ctx.moveTo(head.x + Math.cos(angle) * 20, head.y + Math.sin(angle) * 20);
         ctx.bezierCurveTo(
-          head.x + Math.cos(angle - 0.5) * 30, head.y + Math.sin(angle - 0.5) * 30,
-          head.x + Math.cos(angle - 1.0) * 40, head.y + Math.sin(angle - 1.0) * 40,
-          head.x + Math.cos(angle - 1.5) * 50, head.y + Math.sin(angle - 1.5) * 50
+          head.x + Math.cos(angle - 0.8) * 50, head.y + Math.sin(angle - 0.8) * 50,
+          head.x + Math.cos(angle - 1.2) * 80, head.y + Math.sin(angle - 1.2) * 80,
+          head.x + Math.cos(angle - 1.5) * 100, head.y + Math.sin(angle - 1.5) * 100
         );
-        ctx.moveTo(head.x, head.y);
+        ctx.moveTo(head.x + Math.cos(angle) * 20, head.y + Math.sin(angle) * 20);
         ctx.bezierCurveTo(
-          head.x + Math.cos(angle + 0.5) * 30, head.y + Math.sin(angle + 0.5) * 30,
-          head.x + Math.cos(angle + 1.0) * 40, head.y + Math.sin(angle + 1.0) * 40,
-          head.x + Math.cos(angle + 1.5) * 50, head.y + Math.sin(angle + 1.5) * 50
+          head.x + Math.cos(angle + 0.8) * 50, head.y + Math.sin(angle + 0.8) * 50,
+          head.x + Math.cos(angle + 1.2) * 80, head.y + Math.sin(angle + 1.2) * 80,
+          head.x + Math.cos(angle + 1.5) * 100, head.y + Math.sin(angle + 1.5) * 100
         );
-        ctx.strokeStyle = dragonColor;
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = scaleColor;
+        ctx.lineWidth = 2.5;
         ctx.stroke();
       }
 
@@ -151,7 +225,7 @@ const FluidChineseDragon = () => {
   return (
     <canvas 
       ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none opacity-60 mix-blend-screen"
+      className="absolute inset-0 z-0 pointer-events-none"
     />
   );
 };
