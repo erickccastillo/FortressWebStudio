@@ -28,7 +28,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   return (
     <div
       ref={domRef}
-      className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay}${
+      className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay} ${
         isVisible 
           ? 'opacity-100 translate-y-0 scale-100' 
           : 'opacity-0 translate-y-12 scale-95'
@@ -39,17 +39,17 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE 3D: Red Neuronal (Esferas y Conexiones) ---
+// --- COMPONENTE 3D: Red Neuronal (Esferas y Conexiones en Pantalla Completa) ---
 const NeuralWeb = () => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
 
-  const PARTICLE_COUNT = 150; // Cantidad de neuronas (esferas)
-  const MAX_DISTANCE = 3.5;   // Distancia para crear conexión (telaraña)
-  const INNER_RADIUS = 4.5;   // Espacio hueco en el centro para el monitor ASCII
-  const OUTER_RADIUS = 11.0;  // Límite exterior de la esfera de movimiento
+  // Aumentamos las partículas para llenar toda la pantalla
+  const PARTICLE_COUNT = 250; 
+  const MAX_DISTANCE = 4.5;   
+  const INNER_RADIUS = 5.0;   // Hueco central
+  const OUTER_RADIUS = 25.0;  // Radio gigante para abarcar toda la vista
 
-  // Inicialización de posiciones, velocidades y tamaños
   const { positions, velocities, scales, colors } = useMemo(() => {
     const pos = new Float32Array(PARTICLE_COUNT * 3);
     const vel = new Float32Array(PARTICLE_COUNT * 3);
@@ -60,7 +60,6 @@ const NeuralWeb = () => {
     const violet = new THREE.Color('#8b5cf6');
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      // Posición inicial aleatoria dentro de una esfera hueca
       let radius = INNER_RADIUS + Math.random() * (OUTER_RADIUS - INNER_RADIUS);
       let theta = Math.random() * Math.PI * 2;
       let phi = Math.acos((Math.random() * 2) - 1);
@@ -69,15 +68,12 @@ const NeuralWeb = () => {
       pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       pos[i * 3 + 2] = radius * Math.cos(phi);
 
-      // Velocidades deliberadas
       vel[i * 3] = (Math.random() - 0.5) * 0.02;
       vel[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
       vel[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
 
-      // Tamaños variables (las neuronas)
       sca[i] = Math.random() * 0.15 + 0.05;
 
-      // Mezcla de colores aleatorios entre Cyan y Violeta
       const mixedColor = cyan.clone().lerp(violet, Math.random());
       col[i * 3] = mixedColor.r;
       col[i * 3 + 1] = mixedColor.g;
@@ -87,20 +83,18 @@ const NeuralWeb = () => {
     return { positions: pos, velocities: vel, scales: sca, colors: col };
   }, []);
 
-  // Geometría para las líneas (reservamos espacio suficiente)
   const maxLines = (PARTICLE_COUNT * (PARTICLE_COUNT - 1)) / 2;
   const linePositions = useMemo(() => new Float32Array(maxLines * 6), [maxLines]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const groupRef = useRef<THREE.Group>(null);
 
-  // Animación frame por frame
   useFrame((state) => {
     if (!meshRef.current || !linesRef.current || !groupRef.current) return;
 
-    // Rotación suave y global de toda la telaraña
-    groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
-    groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.2;
+    // Rotación de toda la constelación
+    groupRef.current.rotation.y = state.clock.elapsedTime * 0.03;
+    groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.05) * 0.1;
 
     let lineIndex = 0;
     const currentLinePositions = linesRef.current.geometry.attributes.position.array as Float32Array;
@@ -110,21 +104,17 @@ const NeuralWeb = () => {
       const iy = i * 3 + 1;
       const iz = i * 3 + 2;
 
-      // Actualizar posición basado en la velocidad
       positions[ix] += velocities[ix];
       positions[iy] += velocities[iy];
       positions[iz] += velocities[iz];
 
-      // Rebote esférico: mantenerlas fuera del centro (donde está el ASCII) y dentro del límite exterior
       const distFromCenter = Math.sqrt(positions[ix] ** 2 + positions[iy] ** 2 + positions[iz] ** 2);
       
       if (distFromCenter < INNER_RADIUS || distFromCenter > OUTER_RADIUS) {
-        // Invertir velocidad y dar un pequeño empujón extra para evitar quedarse atrapadas en el borde
         velocities[ix] *= -1.05;
         velocities[iy] *= -1.05;
         velocities[iz] *= -1.05;
 
-        // Limitar velocidad máxima
         const speed = Math.sqrt(velocities[ix]**2 + velocities[iy]**2 + velocities[iz]**2);
         if (speed > 0.05) {
             velocities[ix] = (velocities[ix]/speed) * 0.02;
@@ -139,7 +129,6 @@ const NeuralWeb = () => {
       meshRef.current.setMatrixAt(i, dummy.matrix);
       meshRef.current.setColorAt(i, new THREE.Color(colors[ix], colors[iy], colors[iz]));
 
-      // Calcular conexiones (telaraña)
       for (let j = i + 1; j < PARTICLE_COUNT; j++) {
         const jx = j * 3;
         const jy = j * 3 + 1;
@@ -150,7 +139,6 @@ const NeuralWeb = () => {
         const dz = positions[iz] - positions[jz];
         const distSq = dx * dx + dy * dy + dz * dz;
 
-        // Si están lo suficientemente cerca, dibujar línea
         if (distSq < MAX_DISTANCE * MAX_DISTANCE) {
           currentLinePositions[lineIndex++] = positions[ix];
           currentLinePositions[lineIndex++] = positions[iy];
@@ -171,34 +159,30 @@ const NeuralWeb = () => {
 
   return (
     <group ref={groupRef}>
-      {/* Esferas de la red */}
       <instancedMesh ref={meshRef} args={[undefined, undefined, PARTICLE_COUNT]}>
         <sphereGeometry args={[1, 16, 16]} />
-        {/* Material translúcido para las neuronas */}
         <meshBasicMaterial transparent opacity={0.6} />
       </instancedMesh>
 
-      {/* Telaraña / Conexiones */}
       <lineSegments ref={linesRef}>
         <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[linePositions, 3]}
-        />
-      </bufferGeometry>
-            
-        {/* Material de la telaraña con un violeta/cyan sutil translúcido */}
-        <lineBasicMaterial color="#6366f1" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+          {/* AQUÍ ESTÁ EL FIX PARA TYPESCRIPT CON ARGS */}
+          <bufferAttribute
+            attach="attributes-position"
+            args={[linePositions, 3]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#6366f1" transparent opacity={0.25} blending={THREE.AdditiveBlending} />
       </lineSegments>
     </group>
   );
 };
 
-// --- COMPONENTE: Computadora ASCII (Diseño Detallado) ---
+// --- COMPONENTE: Computadora ASCII (Totalmente Alineada y Robusta) ---
 const AsciiDesktop = () => {
   const [text, setText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
-  const fullText = "Designing for humans...";
+  const fullText = "Designing for humans";
 
   useEffect(() => {
     let currentIndex = 0;
@@ -221,43 +205,39 @@ const AsciiDesktop = () => {
     };
   }, []);
 
-  // Aseguramos que la línea mantenga un ancho fijo para que la caja ASCII no se deforme
-  const maxTextLength = 23; 
-  const currentTextLine = `${text}${cursorVisible ? '█' : ' '}`.padEnd(maxTextLength + 1, ' ');
+  // La longitud interior de la pantalla es exactamente de 26 caracteres.
+  // PadEnd rellena con espacios vacíos para que las paredes de la PC nunca se muevan.
+  const screenWidth = 26;
+  const typedLine = `>_ ${text}${cursorVisible ? '█' : ''}`;
+  const paddedLine = typedLine.padEnd(screenWidth, ' ');
 
   return (
     <div className="relative flex flex-col items-center justify-center p-4">
-      {/* Brillo dinámico detrás de la PC */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.15)_0%,transparent_50%)] blur-xl pointer-events-none -z-10" />
+      {/* Brillo tras la PC */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.15)_0%,transparent_60%)] blur-2xl pointer-events-none -z-10" />
       
+      {/* ASCII protegido y alineado */}
       <pre 
-        className="font-mono text-cyan-400 text-[6px] sm:text-[8px] md:text-[10px] lg:text-xs leading-[1.1] text-left select-none relative z-20"
+        className="font-mono text-cyan-400 text-[8px] sm:text-[10px] md:text-xs leading-tight text-center select-none relative z-20"
         style={{ textShadow: '0 0 5px rgba(45,212,191,0.8), 0 0 10px rgba(45,212,191,0.4)' }}
       >
-{`           .-------------------------------------------.
- |  .-------------------------------------.  |
- |  |                                     |  |
- |  |                                     |  |
- |  |  >_ Fortress Web Studio             |  |
- |  |  >_ System Initialized              |  |
- |  |  >_ ${currentTextLine}       |  |
- |  |                                     |  |
- |  |                                     |  |
- |  '-------------------------------------'  |
- |             [===========]                 |
- '-------------------------------------------'
-                       | |
-                       | |
-               .-------' '-------.
-              /                   \\
-             /_____________________\\
-[  [Esc] [F1][F2][F3][F4] [F5][F6][F7]  ]
-[  [\`][1][2][3][4][5][6][7][8][9][0][-][=]  ]
-[  [Tab][Q][W][E][R][T][Y][U][I][O][P][ ]   ]
-[  [Caps][A][S][D][F][G][H][J][K][L][;][']  ]
-[  [Shift][Z][X][C][V][B][N][M][,][.][/]    ]
-[  [Ctrl][Win][Alt][ Space ][Alt][Ctrl]     ]
-'-------------------------------------------'`}
+{` .--------------------------------.
+   | .----------------------------. |
+   | |                            | |
+   | | Fortress Web Studio        | |
+   | | System Initialized...      | |
+   | | ${paddedLine} | |
+   | |                            | |
+   | '----------------------------' |
+   '--------------------------------'
+                  ||
+            .-----''-----.
+           /              \\
+          /================\\
+     [ [Esc] [F1] [F2] [F3] [F4] ]
+     [ [Q] [W] [E] [R] [T] [Y] [U] ]
+     [ [A] [S] [D] [F] [G] [H] [J] ]
+     [ [Ctrl] [Alt] [ Space ] [Ctrl] ]`}
       </pre>
     </div>
   );
@@ -301,14 +281,6 @@ export default function Home() {
       ref={containerRef}
       className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
-      {/* Brillo radial del cursor */}
-      <div 
-        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
-        style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.04), transparent 40%)`
-        }}
-      />
-
       <style dangerouslySetInnerHTML={{__html: `
         html { scroll-behavior: smooth !important; overflow-x: hidden !important; }
         body {
@@ -336,10 +308,24 @@ export default function Home() {
     
         {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full overflow-hidden pt-20 lg:pt-0">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow">
+          
+          {/* FONDO 3D FULL SCREEN */}
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            {/* Alejamos la cámara a 25 para ver toda la constelación */}
+            <Canvas camera={{ position: [0, 0, 25], fov: 60 }}>
+              <ambientLight intensity={1} />
+              <NeuralWeb />
+            </Canvas>
+          </div>
+
+          {/* OVERLAY DEGRADADO (Para asegurar la legibilidad del texto en la izquierda) */}
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent lg:via-slate-950/50" />
+
+          {/* CONTENIDO DEL HERO (Texto a la izquierda, Computadora a la derecha) */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow relative z-20">
             
             {/* TEXTO IZQUIERDO */}
-            <div className="w-full lg:w-[50%] text-left flex flex-col items-start animate-[fade-in_1s_ease-out] relative z-20">
+            <div className="w-full lg:w-[50%] text-left flex flex-col items-start animate-[fade-in_1s_ease-out]">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
                 Modern Web Development
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mt-2">
@@ -347,7 +333,7 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8">
+              <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8">
                 Fortress Web Studio is a remote web development team focused on
                 creating modern websites, custom digital solutions, and scalable
                 online experiences that help businesses strengthen their presence,
@@ -355,40 +341,27 @@ export default function Home() {
               </p>
 
               <div className="flex flex-wrap gap-4 mt-2">
-                <a href="#who-we-are" className="px-6 py-2.5 rounded-full border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 transition-colors text-sm font-medium tracking-wide">
+                <a href="#who-we-are" className="px-6 py-2.5 rounded-full border border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/20 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
                   Who We Are
                 </a>
-                <a href="#mission-values" className="px-6 py-2.5 rounded-full border border-violet-500/40 text-violet-400 hover:bg-violet-500/10 transition-colors text-sm font-medium tracking-wide">
+                <a href="#mission-values" className="px-6 py-2.5 rounded-full border border-violet-500/40 text-violet-400 hover:bg-violet-500/20 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
                   Mission & Values
                 </a>
-                <a href="#how-we-work" className="px-6 py-2.5 rounded-full border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors text-sm font-medium tracking-wide">
+                <a href="#how-we-work" className="px-6 py-2.5 rounded-full border border-slate-700 text-slate-300 hover:bg-slate-800 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
                   How We Work
                 </a>
               </div>
             </div>
 
-            {/* ZONA DERECHA: COMPUTADORA + RED NEURONAL 3D */}
+            {/* ZONA DERECHA: COMPUTADORA ASCII */}
             <div className="w-full lg:w-[50%] h-[450px] lg:h-[650px] flex items-center justify-center relative animate-[fade-in_1.5s_ease-out]">
-              
-              {/* Capa 1: Canvas 3D de fondo */}
-              <div className="absolute inset-0 z-0 pointer-events-none">
-                <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
-                  <ambientLight intensity={1} />
-                  <NeuralWeb />
-                </Canvas>
-              </div>
-              
-              {/* Capa 2: ASCII overlay por delante */}
-              <div className="relative z-10 w-full flex justify-center items-center">
-                <AsciiDesktop />
-              </div>
-              
+              <AsciiDesktop />
             </div>
 
           </div>
         </section>
 
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent relative z-20" />
 
         {/* --- 2. SECCIÓN: WHO WE ARE --- */}
         <section id="who-we-are" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6 relative z-10">
