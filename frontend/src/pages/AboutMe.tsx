@@ -38,6 +38,41 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
+// --- COMPONENTE: Dragón ASCII Animado ---
+const AsciiDragon = () => {
+  // Usamos un array para evitar problemas con los caracteres de escape invertidos y mantener la forma intacta
+  const dragonAscii = [
+    "                                          _   __,----'~~~~~~~~~`-----.___",
+    "                               .  .    `//====-              ____,-'~`",
+    "               -.            \\_|// .   /||\\\\  `~~~~`---.___./",
+    "         ______-==.       _-~o  `\\/    |||  \\\\           _,'`",
+    "   __,--'   ,=='||\\=_    ;_--~/_-'|-   |`\\   \\\\        ,'",
+    "_-'      ,='    | \\\\`.    '-'~7  /-   /  ||   `\\.     /",
+    ".'       ,'       |  \\\\  \\_  \"  /  /-   /   ||      \\   /",
+    "/ _____  /         |     \\\\.`-_/  /|- _/   ,||       \\ /",
+    ",-'     `-|--'~~`--_ \\     `==-/  `| \\'--===-'       _/'",
+    "          '         `-|      /|    )-'\\~'      _,--\"'",
+    "                      '-~^\\_/ |    |   `\\_   ,^             /\\",
+    "                           /  \\     \\__   \\/~               `\\__",
+    "                       _,-' _/'\\ ,-'~____-'`-/                 ``===\\",
+    "                      ((->/'    \\|||' `.     `\\.  ,                _||",
+    "                                         `\\_     _,-'~`=-<===.________/",
+    "                                            `\\_,'",
+  ].join('\n');
+
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 lg:opacity-50">
+      {/* text-slate-800 se funde casi perfecto con el bg-slate-950 del fondo */}
+      <div 
+        className="animate-dragon absolute text-slate-800 font-mono whitespace-pre text-[6px] sm:text-[8px] md:text-[10px] font-bold select-none" 
+        style={{ willChange: 'transform, opacity' }}
+      >
+        {dragonAscii}
+      </div>
+    </div>
+  );
+};
+
 // --- COMPONENTE: Gafete Interactivo con Físicas y Tamaño Responsivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -56,7 +91,6 @@ const DraggableBadge = () => {
     const angle = pos.current.x * 0.12; 
     const translateY = pos.current.y;
     
-    // Altura base ajustada para que coincida con el nuevo tamaño del hilo más corto
     const ropeBaseHeight = 90; 
     const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
 
@@ -143,7 +177,6 @@ const DraggableBadge = () => {
 
   return (
     <div className="relative flex flex-col items-center z-20 animate-[fade-in_1s_ease-out]">
-      {/* "Clavo" invisible */}
       <div className="absolute -top-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-slate-800 border border-slate-600 rounded-full shadow-inner z-10"></div>
       
       <div 
@@ -151,14 +184,12 @@ const DraggableBadge = () => {
         className="flex flex-col items-center origin-top select-none animate-swing"
         style={{ willChange: 'transform' }}
       >
-        {/* Cuerda: Reducida drásticamente para no invadir pantallas tipo laptop */}
         <div 
           ref={ropeRef}
           className="w-[1.5px] h-8 sm:h-10 md:h-14 lg:h-16 xl:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
-        {/* Gafete: Mantiene su adaptabilidad pero colgará más cerca del clavo */}
         <div 
           ref={badgeRef}
           onMouseDown={handleDown}
@@ -166,10 +197,8 @@ const DraggableBadge = () => {
           className="w-36 sm:w-44 md:w-52 lg:w-60 xl:w-64 relative bg-slate-900 border border-slate-700 rounded-xl lg:rounded-2xl p-3 sm:p-4 md:p-5 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
           style={{ willChange: 'transform' }}
         >
-          {/* Ranura para el clip */}
           <div className="w-12 md:w-16 h-1.5 md:h-2 bg-slate-950/80 rounded-full mb-3 sm:mb-4 lg:mb-5 shadow-inner border border-slate-800/50 pointer-events-none"></div>
 
-          {/* Contenedor de la foto */}
           <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none shadow-sm">
             <img 
               src={miFoto} 
@@ -179,7 +208,6 @@ const DraggableBadge = () => {
             <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
           
-          {/* Texto */}
           <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base text-slate-400 tracking-[0.1em] text-center font-mono mt-4 lg:mt-5 mb-1 lg:mb-2 uppercase font-semibold pointer-events-none w-full">
             <span className="block mb-1 text-slate-300">Computer Eng.</span>
             <span className="block text-cyan-500/80 tracking-[0.2em]">2026</span>
@@ -228,7 +256,6 @@ export default function AboutMe() {
       className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       
-      {/* Fondo Interactivo Suave */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
@@ -236,7 +263,6 @@ export default function AboutMe() {
         }}
       />
 
-      {/* Fallback estático para móviles */}
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/5 via-slate-950 to-slate-950 lg:hidden"></div>
 
       <style dangerouslySetInnerHTML={{__html: `
@@ -257,9 +283,33 @@ export default function AboutMe() {
           animation: swing 6s ease-in-out infinite;
           transform-origin: top center;
         }
+
+        /* --- ANIMACIÓN DEL DRAGÓN --- */
+        @keyframes fly-dragon {
+          0% { 
+            transform: translate(80vw, 20vh) scale(0.6) rotate(-5deg); 
+            opacity: 0; 
+          }
+          20% { 
+            opacity: 1; 
+          }
+          50% { 
+            transform: translate(0vw, -10vh) scale(0.8) rotate(5deg); 
+          }
+          80% { 
+            opacity: 1; 
+          }
+          100% { 
+            transform: translate(-80vw, 30vh) scale(0.6) rotate(-5deg); 
+            opacity: 0; 
+          }
+        }
+        .animate-dragon {
+          /* 35 segundos crea un movimiento majestuoso y lento */
+          animation: fly-dragon 35s ease-in-out infinite;
+        }
       `}} />
 
-      {/* --- BOTÓN FLOTANTE --- */}
       <button
         onClick={scrollToTop}
         className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(45,212,191,0.3)] text-cyan-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-cyan-500/50 ${
@@ -274,19 +324,19 @@ export default function AboutMe() {
 
       <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- 1. SECCIÓN HERO (Diseño Responsivo Split en Desktop) --- */}
+        {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
           
-          {/* Usamos flex-col para móvil y lg:flex-row-reverse para escritorio */}
-          <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow">
+          {/* El Dragón se renderiza al fondo del Hero */}
+          <AsciiDragon />
+
+          <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow z-10 relative pointer-events-none">
             
-            {/* Derecha en Escritorio / Arriba en Móvil: Gafete colgando */}
-            <div className="w-full lg:w-[45%] flex justify-center lg:justify-end lg:pr-10 mb-8 lg:mb-0">
+            <div className="w-full lg:w-[45%] flex justify-center lg:justify-end lg:pr-10 mb-8 lg:mb-0 pointer-events-auto">
               <DraggableBadge />
             </div>
 
-            {/* Izquierda en Escritorio / Abajo en Móvil: Textos y Botones */}
-            <div className="w-full lg:w-[55%] text-center lg:text-left flex flex-col items-center lg:items-start animate-[fade-in_1.5s_ease-out]">
+            <div className="w-full lg:w-[55%] text-center lg:text-left flex flex-col items-center lg:items-start animate-[fade-in_1.5s_ease-out] pointer-events-auto">
               <p className="text-slate-400 text-xs sm:text-sm md:text-base tracking-[0.2em] md:tracking-[0.25em] font-medium uppercase mb-4">
                 Welcome to my portfolio
               </p>
