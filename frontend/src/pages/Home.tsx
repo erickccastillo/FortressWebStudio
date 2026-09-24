@@ -39,16 +39,15 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE 3D: Red Neuronal (Esferas y Conexiones en Pantalla Completa) ---
+// --- COMPONENTE 3D: Red Neuronal ---
 const NeuralWeb = () => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
 
-  // Aumentamos las partículas para llenar toda la pantalla
   const PARTICLE_COUNT = 250; 
   const MAX_DISTANCE = 4.5;   
-  const INNER_RADIUS = 5.0;   // Hueco central
-  const OUTER_RADIUS = 25.0;  // Radio gigante para abarcar toda la vista
+  const INNER_RADIUS = 5.0;   
+  const OUTER_RADIUS = 25.0;  
 
   const { positions, velocities, scales, colors } = useMemo(() => {
     const pos = new Float32Array(PARTICLE_COUNT * 3);
@@ -92,7 +91,6 @@ const NeuralWeb = () => {
   useFrame((state) => {
     if (!meshRef.current || !linesRef.current || !groupRef.current) return;
 
-    // Rotación de toda la constelación
     groupRef.current.rotation.y = state.clock.elapsedTime * 0.03;
     groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.05) * 0.1;
 
@@ -166,7 +164,6 @@ const NeuralWeb = () => {
 
       <lineSegments ref={linesRef}>
         <bufferGeometry>
-          {/* AQUÍ ESTÁ EL FIX PARA TYPESCRIPT CON ARGS */}
           <bufferAttribute
             attach="attributes-position"
             args={[linePositions, 3]}
@@ -178,7 +175,7 @@ const NeuralWeb = () => {
   );
 };
 
-// --- COMPONENTE: Computadora ASCII (Totalmente Alineada y Robusta) ---
+// --- COMPONENTE: Computadora ASCII (Simetría Perfecta) ---
 const AsciiDesktop = () => {
   const [text, setText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -205,8 +202,7 @@ const AsciiDesktop = () => {
     };
   }, []);
 
-  // La longitud interior de la pantalla es exactamente de 26 caracteres.
-  // PadEnd rellena con espacios vacíos para que las paredes de la PC nunca se muevan.
+  // Ancho interno estricto: 26 caracteres.
   const screenWidth = 26;
   const typedLine = `>_ ${text}${cursorVisible ? '█' : ''}`;
   const paddedLine = typedLine.padEnd(screenWidth, ' ');
@@ -216,28 +212,31 @@ const AsciiDesktop = () => {
       {/* Brillo tras la PC */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.15)_0%,transparent_60%)] blur-2xl pointer-events-none -z-10" />
       
-      {/* ASCII protegido y alineado */}
+      {/* 
+        NOTA CRUCIAL: text-left es obligatorio para ASCII. 
+        El contenedor flex se encarga de centrar el dibujo en la pantalla. 
+      */}
       <pre 
-        className="font-mono text-cyan-400 text-[8px] sm:text-[10px] md:text-xs leading-tight text-center select-none relative z-20"
+        className="font-mono text-cyan-400 text-[10px] sm:text-xs md:text-sm leading-tight text-left select-none relative z-20"
         style={{ textShadow: '0 0 5px rgba(45,212,191,0.8), 0 0 10px rgba(45,212,191,0.4)' }}
       >
-{` .--------------------------------.
-   | .----------------------------. |
-   | |                            | |
-   | | Fortress Web Studio        | |
-   | | System Initialized...      | |
-   | | ${paddedLine} | |
-   | |                            | |
-   | '----------------------------' |
-   '--------------------------------'
-                  ||
-            .-----''-----.
-           /              \\
-          /================\\
-     [ [Esc] [F1] [F2] [F3] [F4] ]
-     [ [Q] [W] [E] [R] [T] [Y] [U] ]
-     [ [A] [S] [D] [F] [G] [H] [J] ]
-     [ [Ctrl] [Alt] [ Space ] [Ctrl] ]`}
+{`     .------------------------------.
+     | .--------------------------. |
+     | |                          | |
+     | | Fortress Web Studio      | |
+     | | System Initialized...    | |
+     | | ${paddedLine} | |
+     | |                          | |
+     | '--------------------------' |
+     '------------------------------'
+                    ||
+          .---------''---------.
+         /                      \\
+        /========================\\
+   [ [Esc] [F1] [F2] [F3] [F4] [F5] ]
+   [ [Q] [W] [E] [R] [T] [Y] [U] [I] ]
+   [ [A] [S] [D] [F] [G] [H] [J] [K] ]
+   [ [Ctrl] [Alt] [  Space  ] [Ctrl] ]`}
       </pre>
     </div>
   );
@@ -245,9 +244,7 @@ const AsciiDesktop = () => {
 
 
 // --- COMPONENTE PRINCIPAL ---
-// --- COMPONENTE PRINCIPAL ---
 export default function Home() {
-  // Eliminamos mousePosition, solo dejamos lo necesario
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -312,7 +309,7 @@ export default function Home() {
             </Canvas>
           </div>
 
-          {/* OVERLAY DEGRADADO */}
+          {/* OVERLAY DEGRADADO (Mejora la legibilidad del texto en la izquierda) */}
           <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent lg:via-slate-950/50" />
 
           {/* CONTENIDO DEL HERO */}
