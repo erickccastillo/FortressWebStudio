@@ -38,8 +38,8 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Dragón Chino Fluido en Canvas (ACTUALIZADO) ---
-const FluidChineseDragon = () => {
+// --- COMPONENTE: Pequeñas Explosiones Ambientales (NUEVO) ---
+const AmbientExplosions = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -61,155 +61,82 @@ const FluidChineseDragon = () => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Mayor cantidad de segmentos y menor espacio para un cuerpo más fluido
-    const numSegments = 60; 
-    const segmentSpacing = 2; 
-    const history: { x: number, y: number }[] = [];
-    let time = 0;
+    // Paleta de colores del ambiente (Cian y Violeta)
+    const colors = ['#22d3ee', '#8b5cf6', '#c084fc', '#38bdf8', '#818cf8'];
+
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      life: number;
+      decay: number;
+      color: string;
+      size: number;
+    }
+
+    let particles: Particle[] = [];
     let animationFrameId: number;
 
+    const createExplosion = (x: number, y: number) => {
+      const numParticles = Math.random() * 15 + 10; // 10 a 25 partículas por explosión
+      const explosionColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 1.5 + 0.5;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 1, // Vida inicial (opacidad)
+          decay: Math.random() * 0.015 + 0.01, // Velocidad a la que desaparece
+          color: explosionColor,
+          size: Math.random() * 2 + 1 // Tamaño de la partícula
+        });
+      }
+    };
+
     const draw = () => {
-      // Velocidad aumentada para que pase más seguido
-      time += 0.015; 
       ctx.clearRect(0, 0, width, height);
 
-      // Trazo matemático ajustado para que se mantenga más dentro de la pantalla
-      const headX = (width / 2) + Math.sin(time) * (width * 0.45) + Math.cos(time * 1.5) * (width * 0.2);
-      const headY = (height / 2) + Math.cos(time * 1.1) * (height * 0.45) + Math.sin(time * 1.7) * (height * 0.2);
-
-      history.unshift({ x: headX, y: headY });
-      if (history.length > numSegments * segmentSpacing + 10) {
-        history.pop();
+      // Probabilidad de generar una nueva explosión en cada frame (aprox 2-3 por segundo)
+      if (Math.random() < 0.03) {
+        createExplosion(Math.random() * width, Math.random() * height);
       }
 
-      // Colores vibrantes y realistas (Rojo y Dorado)
-      const bodyColor = '#dc2626'; // Rojo carmesí
-      const scaleColor = '#fbbf24'; // Dorado
-      const shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.globalCompositeOperation = 'lighter'; // Efecto de brillo al superponerse
 
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      // Dibujar el cuerpo (de la cola a la cabeza)
-      for (let i = numSegments - 1; i >= 0; i--) {
-        const index = i * segmentSpacing;
-        if (index < history.length) {
-          const pos = history[index];
-          // El cuerpo es más grueso cerca de la cabeza y fino en la cola
-          const size = 18 - (i / numSegments) * 15; 
+      // Actualizar y dibujar partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= p.decay;
+        
+        // Fricción para que se ralenticen suavemente
+        p.vx *= 0.95;
+        p.vy *= 0.95;
 
-          // Sombra para dar volumen
+        if (p.life <= 0) {
+          particles.splice(i, 1);
+        } else {
           ctx.beginPath();
-          ctx.arc(pos.x + 2, pos.y + 5, Math.max(size, 1), 0, Math.PI * 2);
-          ctx.fillStyle = shadowColor;
-          ctx.fill();
-
-          // Cuerpo principal
-          ctx.beginPath();
-          ctx.arc(pos.x, pos.y, Math.max(size, 1), 0, Math.PI * 2);
-          ctx.fillStyle = bodyColor;
-          ctx.fill();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.life);
           
-          // Contorno dorado para simular escamas
-          ctx.lineWidth = 1.5;
-          ctx.strokeStyle = scaleColor;
-          ctx.stroke();
-
-          // Dibujar patas en segmentos específicos
-          if ((i === 15 || i === 35) && index + 2 < history.length) {
-            const prevPos = history[index + 2];
-            const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x);
-            
-            // Pata izquierda y derecha
-            [-1, 1].forEach(side => {
-              ctx.beginPath();
-              ctx.moveTo(pos.x, pos.y);
-              const legEndX = pos.x + Math.cos(angle + (Math.PI/2 * side)) * (size + 15);
-              const legEndY = pos.y + Math.sin(angle + (Math.PI/2 * side)) * (size + 15);
-              
-              ctx.quadraticCurveTo(
-                pos.x + Math.cos(angle) * 10, pos.y + Math.sin(angle) * 10,
-                legEndX, legEndY
-              );
-              ctx.strokeStyle = scaleColor;
-              ctx.lineWidth = 3;
-              ctx.stroke();
-            });
-          }
-
-          // Picos dorsales
-          if (i % 3 === 0 && index + 1 < history.length) {
-            const prevPos = history[index + 1];
-            const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-            ctx.lineTo(
-              pos.x + Math.cos(angle + Math.PI/2) * (size + 8), 
-              pos.y + Math.sin(angle + Math.PI/2) * (size + 8)
-            );
-            ctx.strokeStyle = '#fef08a'; // Amarillo claro para los picos
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
+          // Ligero resplandor
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          
+          ctx.fill();
         }
       }
 
-      // Dibujar la cabeza
-      if (history.length > 2) {
-        const head = history[0];
-        const neck = history[2];
-        const angle = Math.atan2(head.y - neck.y, head.x - neck.x);
-
-        // Base de la cabeza
-        ctx.beginPath();
-        ctx.arc(head.x, head.y, 22, 0, Math.PI * 2);
-        ctx.fillStyle = bodyColor;
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = scaleColor;
-        ctx.stroke();
-
-        // Hocico
-        ctx.beginPath();
-        ctx.ellipse(
-          head.x + Math.cos(angle) * 15, head.y + Math.sin(angle) * 15, 
-          12, 18, angle + Math.PI/2, 0, Math.PI * 2
-        );
-        ctx.fillStyle = scaleColor;
-        ctx.fill();
-
-        // Ojos brillantes
-        [-1, 1].forEach(side => {
-          const eyeX = head.x + Math.cos(angle + (0.5 * side)) * 10;
-          const eyeY = head.y + Math.sin(angle + (0.5 * side)) * 10;
-          ctx.beginPath();
-          ctx.arc(eyeX, eyeY, 4, 0, Math.PI * 2);
-          ctx.fillStyle = '#fff';
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(eyeX + Math.cos(angle)*1.5, eyeY + Math.sin(angle)*1.5, 2, 0, Math.PI * 2);
-          ctx.fillStyle = '#000'; // Pupila
-          ctx.fill();
-        });
-
-        // Bigotes largos fluidos (Mostachos de dragón)
-        ctx.beginPath();
-        ctx.moveTo(head.x + Math.cos(angle) * 20, head.y + Math.sin(angle) * 20);
-        ctx.bezierCurveTo(
-          head.x + Math.cos(angle - 0.8) * 50, head.y + Math.sin(angle - 0.8) * 50,
-          head.x + Math.cos(angle - 1.2) * 80, head.y + Math.sin(angle - 1.2) * 80,
-          head.x + Math.cos(angle - 1.5) * 100, head.y + Math.sin(angle - 1.5) * 100
-        );
-        ctx.moveTo(head.x + Math.cos(angle) * 20, head.y + Math.sin(angle) * 20);
-        ctx.bezierCurveTo(
-          head.x + Math.cos(angle + 0.8) * 50, head.y + Math.sin(angle + 0.8) * 50,
-          head.x + Math.cos(angle + 1.2) * 80, head.y + Math.sin(angle + 1.2) * 80,
-          head.x + Math.cos(angle + 1.5) * 100, head.y + Math.sin(angle + 1.5) * 100
-        );
-        ctx.strokeStyle = scaleColor;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-      }
+      ctx.globalAlpha = 1; // Resetear el alpha para el siguiente frame
+      ctx.shadowBlur = 0;
 
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -225,7 +152,7 @@ const FluidChineseDragon = () => {
   return (
     <canvas 
       ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none"
+      className="absolute inset-0 z-0 pointer-events-none opacity-80"
     />
   );
 };
@@ -459,8 +386,8 @@ export default function AboutMe() {
         {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
           
-          {/* Dragón Chino renderizado en el fondo */}
-          <FluidChineseDragon />
+          {/* Pequeñas explosiones/destellos renderizados en el fondo */}
+          <AmbientExplosions />
 
           <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow z-10 relative pointer-events-none">
             
