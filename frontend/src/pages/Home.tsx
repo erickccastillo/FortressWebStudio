@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Sphere, Html, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
 // --- COMPONENTE: Animación de Scroll (Aparición/Desaparición) ---
@@ -29,7 +28,7 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   return (
     <div
       ref={domRef}
-      className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay} ${
+      className={`transition-all duration-1000 ease-out will-change-[opacity,transform] ${delay}${
         isVisible 
           ? 'opacity-100 translate-y-0 scale-100' 
           : 'opacity-0 translate-y-12 scale-95'
@@ -40,80 +39,166 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTES 3D: Planeta y Computadora ---
-const PlanetScene = ({ text, cursorVisible }: { text: string, cursorVisible: boolean }) => {
-  const laptopRef = useRef<THREE.Group>(null);
-  const planetRef1 = useRef<THREE.Mesh>(null);
-  const planetRef2 = useRef<THREE.Mesh>(null);
+// --- COMPONENTE 3D: Red Neuronal (Esferas y Conexiones) ---
+const NeuralWeb = () => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
 
-  // Animaciones cuadro por cuadro
-  useFrame((state, delta) => {
-    // 1. La computadora ASCII es la protagonista que gira rápido en el centro
-    if (laptopRef.current) {
-      laptopRef.current.rotation.y -= delta * 0.5; // Giro constante
-      laptopRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.1; // Leve balanceo
+  const PARTICLE_COUNT = 150; // Cantidad de neuronas (esferas)
+  const MAX_DISTANCE = 3.5;   // Distancia para crear conexión (telaraña)
+  const INNER_RADIUS = 4.5;   // Espacio hueco en el centro para el monitor ASCII
+  const OUTER_RADIUS = 11.0;  // Límite exterior de la esfera de movimiento
+
+  // Inicialización de posiciones, velocidades y tamaños
+  const { positions, velocities, scales, colors } = useMemo(() => {
+    const pos = new Float32Array(PARTICLE_COUNT * 3);
+    const vel = new Float32Array(PARTICLE_COUNT * 3);
+    const sca = new Float32Array(PARTICLE_COUNT);
+    const col = new Float32Array(PARTICLE_COUNT * 3);
+
+    const cyan = new THREE.Color('#2dd4bf');
+    const violet = new THREE.Color('#8b5cf6');
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      // Posición inicial aleatoria dentro de una esfera hueca
+      let radius = INNER_RADIUS + Math.random() * (OUTER_RADIUS - INNER_RADIUS);
+      let theta = Math.random() * Math.PI * 2;
+      let phi = Math.acos((Math.random() * 2) - 1);
+
+      pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      pos[i * 3 + 2] = radius * Math.cos(phi);
+
+      // Velocidades deliberadas
+      vel[i * 3] = (Math.random() - 0.5) * 0.02;
+      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
+      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
+
+      // Tamaños variables (las neuronas)
+      sca[i] = Math.random() * 0.15 + 0.05;
+
+      // Mezcla de colores aleatorios entre Cyan y Violeta
+      const mixedColor = cyan.clone().lerp(violet, Math.random());
+      col[i * 3] = mixedColor.r;
+      col[i * 3 + 1] = mixedColor.g;
+      col[i * 3 + 2] = mixedColor.b;
     }
-    
-    // 2. El planeta de fondo gira muy lentamente para dar contexto
-    if (planetRef1.current) {
-      planetRef1.current.rotation.y += delta * 0.05;
-      planetRef1.current.rotation.x += delta * 0.02;
+
+    return { positions: pos, velocities: vel, scales: sca, colors: col };
+  }, []);
+
+  // Geometría para las líneas (reservamos espacio suficiente)
+  const maxLines = (PARTICLE_COUNT * (PARTICLE_COUNT - 1)) / 2;
+  const linePositions = useMemo(() => new Float32Array(maxLines * 6), [maxLines]);
+
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Animación frame por frame
+  useFrame((state) => {
+    if (!meshRef.current || !linesRef.current || !groupRef.current) return;
+
+    // Rotación suave y global de toda la telaraña
+    groupRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+    groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.1) * 0.2;
+
+    let lineIndex = 0;
+    const currentLinePositions = linesRef.current.geometry.attributes.position.array as Float32Array;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const ix = i * 3;
+      const iy = i * 3 + 1;
+      const iz = i * 3 + 2;
+
+      // Actualizar posición basado en la velocidad
+      positions[ix] += velocities[ix];
+      positions[iy] += velocities[iy];
+      positions[iz] += velocities[iz];
+
+      // Rebote esférico: mantenerlas fuera del centro (donde está el ASCII) y dentro del límite exterior
+      const distFromCenter = Math.sqrt(positions[ix] ** 2 + positions[iy] ** 2 + positions[iz] ** 2);
+      
+      if (distFromCenter < INNER_RADIUS || distFromCenter > OUTER_RADIUS) {
+        // Invertir velocidad y dar un pequeño empujón extra para evitar quedarse atrapadas en el borde
+        velocities[ix] *= -1.05;
+        velocities[iy] *= -1.05;
+        velocities[iz] *= -1.05;
+
+        // Limitar velocidad máxima
+        const speed = Math.sqrt(velocities[ix]**2 + velocities[iy]**2 + velocities[iz]**2);
+        if (speed > 0.05) {
+            velocities[ix] = (velocities[ix]/speed) * 0.02;
+            velocities[iy] = (velocities[iy]/speed) * 0.02;
+            velocities[iz] = (velocities[iz]/speed) * 0.02;
+        }
+      }
+
+      dummy.position.set(positions[ix], positions[iy], positions[iz]);
+      dummy.scale.set(scales[i], scales[i], scales[i]);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+      meshRef.current.setColorAt(i, new THREE.Color(colors[ix], colors[iy], colors[iz]));
+
+      // Calcular conexiones (telaraña)
+      for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+        const jx = j * 3;
+        const jy = j * 3 + 1;
+        const jz = j * 3 + 2;
+
+        const dx = positions[ix] - positions[jx];
+        const dy = positions[iy] - positions[jy];
+        const dz = positions[iz] - positions[jz];
+        const distSq = dx * dx + dy * dy + dz * dz;
+
+        // Si están lo suficientemente cerca, dibujar línea
+        if (distSq < MAX_DISTANCE * MAX_DISTANCE) {
+          currentLinePositions[lineIndex++] = positions[ix];
+          currentLinePositions[lineIndex++] = positions[iy];
+          currentLinePositions[lineIndex++] = positions[iz];
+          currentLinePositions[lineIndex++] = positions[jx];
+          currentLinePositions[lineIndex++] = positions[jy];
+          currentLinePositions[lineIndex++] = positions[jz];
+        }
+      }
     }
-    if (planetRef2.current) {
-      planetRef2.current.rotation.y -= delta * 0.03;
-      planetRef2.current.rotation.z += delta * 0.02;
-    }
+
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
+
+    linesRef.current.geometry.setDrawRange(0, lineIndex / 3);
+    linesRef.current.geometry.attributes.position.needsUpdate = true;
   });
 
   return (
-    <>
-      {/* Esfera 1 (Planeta principal - Cyan) */}
-      <Sphere ref={planetRef1} args={[2.5, 24, 24]}>
-        <meshBasicMaterial color="#2dd4bf" wireframe transparent opacity={0.15} />
-      </Sphere>
+    <group ref={groupRef}>
+      {/* Esferas de la red */}
+      <instancedMesh ref={meshRef} args={[undefined, undefined, PARTICLE_COUNT]}>
+        <sphereGeometry args={[1, 16, 16]} />
+        {/* Material translúcido para las neuronas */}
+        <meshBasicMaterial transparent opacity={0.6} />
+      </instancedMesh>
 
-      {/* Esfera 2 (Planeta interior/atmósfera - Violeta) */}
-      <Sphere ref={planetRef2} args={[2.3, 16, 16]}>
-        <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.1} />
-      </Sphere>
-
-      {/* Grupo independiente para la computadora que gira */}
-      <group ref={laptopRef}>
-        {/* En lugar de scale, usamos distanceFactor=7.5 para mantener proporciones estables en 3D */}
-        <Html transform center distanceFactor={7.5} zIndexRange={[100, 0]}>
-          {/* w-max asegura que el ASCII no haga saltos de línea por falta de espacio */}
-          <div className="w-max relative font-mono text-cyan-400 text-[10px] sm:text-xs leading-tight bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 p-6 md:p-8 rounded-2xl shadow-[0_0_50px_-10px_rgba(45,212,191,0.3)] pointer-events-none select-none">
-            <pre className="whitespace-pre-wrap relative z-10 text-left">
-{`   .=================================.
-   | ............................... |
-   | .                               . |
-   | .  >_ Hello_                    . |
-   | .                               . |
-   | .  ${text}${cursorVisible ? '█' : ' '} `}
-{/* Espacios vacíos para mantener la altura */}
-{`  . |
-   | .                               . |
-   | ............................... |
-   '================================='
-                ||     ||
-             ___||_____||___
-            /###############\\
-           /=================\\
-`}
-            </pre>
-            <div className="absolute top-8 left-8 right-8 h-1/3 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-sm z-20" />
-          </div>
-        </Html>
-      </group>
-    </>
+      {/* Telaraña / Conexiones */}
+      <lineSegments ref={linesRef}>
+        <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[linePositions, 3]}
+        />
+      </bufferGeometry>
+            
+        {/* Material de la telaraña con un violeta/cyan sutil translúcido */}
+        <lineBasicMaterial color="#6366f1" transparent opacity={0.2} blending={THREE.AdditiveBlending} />
+      </lineSegments>
+    </group>
   );
 };
 
-// --- COMPONENTE: Computadora ASCII 3D (Contenedor) ---
-const AsciiPlanetComputer = () => {
+// --- COMPONENTE: Computadora ASCII (Diseño Detallado) ---
+const AsciiDesktop = () => {
   const [text, setText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
-  const fullText = "Designing for humans...\nBuilding the web_";
+  const fullText = "Designing for humans...";
 
   useEffect(() => {
     let currentIndex = 0;
@@ -136,17 +221,48 @@ const AsciiPlanetComputer = () => {
     };
   }, []);
 
+  // Aseguramos que la línea mantenga un ancho fijo para que la caja ASCII no se deforme
+  const maxTextLength = 23; 
+  const currentTextLine = `${text}${cursorVisible ? '█' : ' '}`.padEnd(maxTextLength + 1, ' ');
+
   return (
-    <div className="w-full h-[350px] sm:h-[400px] lg:h-[450px] relative cursor-move flex items-center justify-center">
-      <Canvas camera={{ position: [0, 0, 7.5], fov: 50 }}>
-        <ambientLight intensity={0.5} />
-        <PlanetScene text={text} cursorVisible={cursorVisible} />
-        <OrbitControls enableZoom={false} enablePan={false} />
-      </Canvas>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.05)_0%,transparent_60%)] pointer-events-none -z-10" />
+    <div className="relative flex flex-col items-center justify-center p-4">
+      {/* Brillo dinámico detrás de la PC */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.15)_0%,transparent_50%)] blur-xl pointer-events-none -z-10" />
+      
+      <pre 
+        className="font-mono text-cyan-400 text-[6px] sm:text-[8px] md:text-[10px] lg:text-xs leading-[1.1] text-left select-none relative z-20"
+        style={{ textShadow: '0 0 5px rgba(45,212,191,0.8), 0 0 10px rgba(45,212,191,0.4)' }}
+      >
+{`           .-------------------------------------------.
+ |  .-------------------------------------.  |
+ |  |                                     |  |
+ |  |                                     |  |
+ |  |  >_ Fortress Web Studio             |  |
+ |  |  >_ System Initialized              |  |
+ |  |  >_ ${currentTextLine}       |  |
+ |  |                                     |  |
+ |  |                                     |  |
+ |  '-------------------------------------'  |
+ |             [===========]                 |
+ '-------------------------------------------'
+                       | |
+                       | |
+               .-------' '-------.
+              /                   \\
+             /_____________________\\
+[  [Esc] [F1][F2][F3][F4] [F5][F6][F7]  ]
+[  [\`][1][2][3][4][5][6][7][8][9][0][-][=]  ]
+[  [Tab][Q][W][E][R][T][Y][U][I][O][P][ ]   ]
+[  [Caps][A][S][D][F][G][H][J][K][L][;][']  ]
+[  [Shift][Z][X][C][V][B][N][M][,][.][/]    ]
+[  [Ctrl][Win][Alt][ Space ][Alt][Ctrl]     ]
+'-------------------------------------------'`}
+      </pre>
     </div>
   );
 };
+
 
 // --- COMPONENTE PRINCIPAL ---
 export default function Home() {
@@ -183,9 +299,9 @@ export default function Home() {
   return (
     <div 
       ref={containerRef}
-      /* Nota: eliminamos overflow-x-hidden de este div principal porque puede entrar en conflicto con el renderizado CSS3D en Safari/Chrome */
-      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full"
+      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
+      {/* Brillo radial del cursor */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
@@ -219,10 +335,11 @@ export default function Home() {
       <main className="relative z-10 w-full flex flex-col items-center">
     
         {/* --- 1. SECCIÓN HERO --- */}
-        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-10 overflow-hidden">
+        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full overflow-hidden pt-20 lg:pt-0">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow">
             
-            <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0 animate-[fade-in_1s_ease-out] relative z-20">
+            {/* TEXTO IZQUIERDO */}
+            <div className="w-full lg:w-[50%] text-left flex flex-col items-start animate-[fade-in_1s_ease-out] relative z-20">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
                 Modern Web Development
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mt-2">
@@ -250,9 +367,24 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full lg:w-[45%] flex justify-center lg:justify-end pb-12 lg:pb-0 animate-[fade-in_1.5s_ease-out]">
-              <AsciiPlanetComputer />
+            {/* ZONA DERECHA: COMPUTADORA + RED NEURONAL 3D */}
+            <div className="w-full lg:w-[50%] h-[450px] lg:h-[650px] flex items-center justify-center relative animate-[fade-in_1.5s_ease-out]">
+              
+              {/* Capa 1: Canvas 3D de fondo */}
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                <Canvas camera={{ position: [0, 0, 15], fov: 60 }}>
+                  <ambientLight intensity={1} />
+                  <NeuralWeb />
+                </Canvas>
+              </div>
+              
+              {/* Capa 2: ASCII overlay por delante */}
+              <div className="relative z-10 w-full flex justify-center items-center">
+                <AsciiDesktop />
+              </div>
+              
             </div>
+
           </div>
         </section>
 
