@@ -72,13 +72,7 @@ export default function Header() {
       {/* Usamos una transición básica condicional para mostrar el menú */}
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-[#050810]/95 backdrop-blur-xl border-b border-cyan-900/20 py-6 px-6 flex flex-col gap-6 shadow-2xl">
-          <Link
-            to="/work"
-            onClick={() => setIsMenuOpen(false)}
-            className="text-base font-medium text-slate-300 hover:text-cyan-400 transition-colors tracking-wide text-center"
-          >
-            Our Work
-          </Link>
+
 
           <Link
             to="/aboutme"
