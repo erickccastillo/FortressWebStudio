@@ -48,12 +48,10 @@ const PlanetScene = ({ text, cursorVisible }: { text: string, cursorVisible: boo
 
   // Animaciones cuadro por cuadro
   useFrame((state, delta) => {
-    // 1. La computadora ASCII es la protagonista que gira
+    // 1. La computadora ASCII es la protagonista que gira rápido en el centro
     if (laptopRef.current) {
-      // Giro constante sobre el eje Y
-      laptopRef.current.rotation.y += delta * 0.4;
-      // Leve oscilación en X para que no se vea tan rígida
-      laptopRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.1;
+      laptopRef.current.rotation.y -= delta * 0.5; // Giro constante
+      laptopRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.1; // Leve balanceo
     }
     
     // 2. El planeta de fondo gira muy lentamente para dar contexto
@@ -69,22 +67,22 @@ const PlanetScene = ({ text, cursorVisible }: { text: string, cursorVisible: boo
 
   return (
     <>
-      {/* Esfera 1 (Planeta principal - Cyan) - Tamaño reducido de 3.2 a 2.5 */}
+      {/* Esfera 1 (Planeta principal - Cyan) */}
       <Sphere ref={planetRef1} args={[2.5, 24, 24]}>
         <meshBasicMaterial color="#2dd4bf" wireframe transparent opacity={0.15} />
       </Sphere>
 
-      {/* Esfera 2 (Planeta interior/atmósfera - Violeta) - Tamaño reducido de 3 a 2.3 */}
+      {/* Esfera 2 (Planeta interior/atmósfera - Violeta) */}
       <Sphere ref={planetRef2} args={[2.3, 16, 16]}>
         <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.1} />
       </Sphere>
 
       {/* Grupo independiente para la computadora que gira */}
       <group ref={laptopRef}>
-        {/* Usamos Html de drei. Ajustamos scale para que se vea bien dentro de la esfera de 2.5 */}
-        <Html transform center scale={0.4}>
-          {/* El contenedor original de tu ASCII */}
-          <div className="relative font-mono text-cyan-400 text-[10px] sm:text-xs leading-tight bg-slate-900/90 backdrop-blur-sm border border-cyan-500/30 p-6 md:p-8 rounded-2xl shadow-[0_0_40px_-10px_rgba(45,212,191,0.2)] pointer-events-none select-none">
+        {/* En lugar de scale, usamos distanceFactor=7.5 para mantener proporciones estables en 3D */}
+        <Html transform center distanceFactor={7.5} zIndexRange={[100, 0]}>
+          {/* w-max asegura que el ASCII no haga saltos de línea por falta de espacio */}
+          <div className="w-max relative font-mono text-cyan-400 text-[10px] sm:text-xs leading-tight bg-slate-900/95 backdrop-blur-md border border-cyan-500/40 p-6 md:p-8 rounded-2xl shadow-[0_0_50px_-10px_rgba(45,212,191,0.3)] pointer-events-none select-none">
             <pre className="whitespace-pre-wrap relative z-10 text-left">
 {`   .=================================.
    | ............................... |
@@ -139,12 +137,7 @@ const AsciiPlanetComputer = () => {
   }, []);
 
   return (
-    // Reducimos el contenedor para que no se coma tanto espacio en la grid
     <div className="w-full h-[350px] sm:h-[400px] lg:h-[450px] relative cursor-move flex items-center justify-center">
-      {/* 
-        Ajustamos la cámara: 
-        fov más amplio o cámara más lejos (Z: 10) para que la esfera de radio 2.5 quepa entera sin cortarse 
-      */}
       <Canvas camera={{ position: [0, 0, 7.5], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <PlanetScene text={text} cursorVisible={cursorVisible} />
@@ -190,7 +183,8 @@ export default function Home() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
+      /* Nota: eliminamos overflow-x-hidden de este div principal porque puede entrar en conflicto con el renderizado CSS3D en Safari/Chrome */
+      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full"
     >
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
@@ -200,7 +194,7 @@ export default function Home() {
       />
 
       <style dangerouslySetInnerHTML={{__html: `
-        html { scroll-behavior: smooth !important; }
+        html { scroll-behavior: smooth !important; overflow-x: hidden !important; }
         body {
           background-color: #020617 !important;
           overflow-x: hidden !important;
@@ -225,12 +219,10 @@ export default function Home() {
       <main className="relative z-10 w-full flex flex-col items-center">
     
         {/* --- 1. SECCIÓN HERO --- */}
-        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-10">
+        <section className="relative flex flex-col items-center justify-center min-h-[100dvh] w-full pt-10 overflow-hidden">
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow">
             
-            <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0 animate-[fade-in_1s_ease-out]">
-              
-
+            <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0 animate-[fade-in_1s_ease-out] relative z-20">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
                 Modern Web Development
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mt-2">
@@ -267,7 +259,7 @@ export default function Home() {
         <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
 
         {/* --- 2. SECCIÓN: WHO WE ARE --- */}
-        <section id="who-we-are" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
+        <section id="who-we-are" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <FadeInSection>
               <div className="mb-10 md:mb-14 flex flex-col items-center">
