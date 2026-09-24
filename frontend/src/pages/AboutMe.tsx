@@ -358,8 +358,8 @@ export default function AboutMe() {
               <FadeInSection delay="delay-100">
                 <p>
                   I decided to begin my journey as an independent web developer with a clear
-                  purpose: <span className="text-cyan-400 font-medium">
-                  helping businesses build meaningful connections with the people they serve.</span>
+                  purpose: 
+                  helping businesses build meaningful connections with the people they serve.
                 </p>
               </FadeInSection>
 
@@ -417,7 +417,7 @@ export default function AboutMe() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
                       I'm a Computer engineer graduate with a strong university foundation in software engineering, algorithms and 
-                      distributed systems. During my studies I specialized in modern web development, focusing on <span className="text-cyan-400 font-medium">React</span> and <span className="text-cyan-400 font-medium">Node.js</span>, and led several academic projects around machine learning and AI integration.
+                      distributed systems. During my studies I specialized in modern web development, focusing on React and Node.js, and led several academic projects around machine learning and AI integration.
                     </p>
                     <p className="text-slate-300 text-lg md:text-xl leading-relaxed">
                       Today I bring 2 years of experience to designing and shipping full-stack products that combine clean architecture with AI-powered features — from intelligent automation pipelines to high-performance systems — always with an obsession for detail, performance, and great user experience.
