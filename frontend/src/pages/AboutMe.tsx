@@ -39,13 +39,11 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
 };
 
 // --- COMPONENTE: Gafete Interactivo ---
-// --- COMPONENTE: Gafete Interactivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ropeRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
   
-  // NUEVO: Estado para saber si la imagen ya cargó
   const [imgLoaded, setImgLoaded] = useState(false);
   
   const isDragging = useRef(false);
@@ -160,18 +158,14 @@ const DraggableBadge = () => {
         >
           <div className="w-12 md:w-16 h-1.5 md:h-2 bg-slate-950/80 rounded-full mb-3 sm:mb-4 lg:mb-5 shadow-inner border border-slate-800/50 pointer-events-none"></div>
 
-          {/* CONTENEDOR DE LA IMAGEN CON SKELETON LOADER */}
           <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none shadow-sm">
-            
-            {/* Skeleton que pulsa mientras imgLoaded sea false */}
             {!imgLoaded && (
               <div className="absolute inset-0 bg-slate-700 animate-pulse"></div>
             )}
-
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
-              onLoad={() => setImgLoaded(true)} // Se dispara cuando la imagen se descarga completa
+              onLoad={() => setImgLoaded(true)} 
               className={`w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out ${
                 imgLoaded ? 'opacity-100' : 'opacity-0'
               }`}
@@ -227,7 +221,7 @@ export default function AboutMe() {
       className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       
-      {/* Luz de cursor (ligera) que no consume apenas recursos */}
+      {/* Luz de cursor */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
@@ -271,9 +265,8 @@ export default function AboutMe() {
 
       <main className="relative z-10 w-full flex flex-col items-center">
     
-        {/* --- 1. SECCIÓN HERO --- */}
+        {/* --- 1. SECCIÓN HERO (Se mantiene oscura) --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
-
           <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow z-10 relative pointer-events-none">
             
             <div className="w-full lg:w-[45%] flex justify-center lg:justify-end lg:pr-10 mb-8 lg:mb-0 pointer-events-auto">
@@ -328,17 +321,15 @@ export default function AboutMe() {
                 </a>
               </div>
             </div>
-
           </div>
-
         </section>
 
-        {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-
-        {/* --- 2. SECCIÓN MISIÓN --- */}
-        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto text-center">
+        {/* --- 2. SECCIÓN MISIÓN (Alterna: Tinte Violeta oscuro) --- */}
+        <section className="w-full bg-gradient-to-b from-slate-900 via-[#110c1f] to-slate-900 border-y border-violet-500/10 py-20 md:py-28 px-4 sm:px-6 relative overflow-hidden">
+          {/* Luz de fondo ambiental temática */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-violet-900/10 via-transparent to-transparent pointer-events-none"></div>
+          
+          <div className="max-w-4xl mx-auto text-center relative z-10">
             <FadeInSection>
               <div className="mb-10 md:mb-14 flex flex-col items-center">
                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
@@ -376,10 +367,7 @@ export default function AboutMe() {
           </div>
         </section>
 
-        {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
-
-        {/* --- 3. SECCIÓN SOBRE MÍ --- */}
+        {/* --- 3. SECCIÓN SOBRE MÍ (Base: Slate 950) --- */}
         <section className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <FadeInSection>
@@ -431,12 +419,12 @@ export default function AboutMe() {
           </div>
         </section>
 
-        {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-
-        {/* --- 4. SECCIÓN EXPERIENCIA --- */}
-        <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto">
+        {/* --- 4. SECCIÓN EXPERIENCIA (Alterna: Tinte Cyan oscuro) --- */}
+        <section className="w-full bg-gradient-to-b from-slate-900 via-[#0a151a] to-slate-900 border-y border-cyan-500/10 py-20 md:py-28 px-4 sm:px-6 relative overflow-hidden">
+          {/* Luz de fondo ambiental temática */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/10 via-transparent to-transparent pointer-events-none"></div>
+          
+          <div className="max-w-7xl mx-auto relative z-10">
             <FadeInSection>
               <div className="mb-12 md:mb-16 flex flex-col items-center">
                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
