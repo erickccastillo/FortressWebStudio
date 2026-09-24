@@ -71,7 +71,8 @@ const NeuralWeb = () => {
       vel[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
       vel[i * 3 + 2] = (Math.random() - 0.5) * 0.02;
 
-      sca[i] = Math.random() * 0.15 + 0.05;
+      // Hacemos que los tamaños sean más uniformes (rango entre 0.08 y 0.16)
+      sca[i] = Math.random() * 0.08 + 0.08;
 
       const mixedColor = cyan.clone().lerp(violet, Math.random());
       col[i * 3] = mixedColor.r;
@@ -158,8 +159,15 @@ const NeuralWeb = () => {
   return (
     <group ref={groupRef}>
       <instancedMesh ref={meshRef} args={[undefined, undefined, PARTICLE_COUNT]}>
-        <sphereGeometry args={[1, 16, 16]} />
-        <meshBasicMaterial transparent opacity={0.6} />
+        {/* Aumentamos la resolución de la esfera de 16x16 a 32x32 para que sean perfectamente redondas */}
+        <sphereGeometry args={[1, 32, 32]} />
+        {/* Usamos meshStandardMaterial para que reaccione a la luz y tenga volumen 3D */}
+        <meshStandardMaterial 
+          roughness={0.2} 
+          metalness={0.8} 
+          transparent 
+          opacity={0.85} 
+        />
       </instancedMesh>
 
       <lineSegments ref={linesRef}>
@@ -202,20 +210,13 @@ const AsciiDesktop = () => {
     };
   }, []);
 
-  // Ancho interno estricto: 26 caracteres.
   const screenWidth = 26;
   const typedLine = `>_ ${text}${cursorVisible ? '█' : ''}`;
   const paddedLine = typedLine.padEnd(screenWidth, ' ');
 
   return (
     <div className="relative flex flex-col items-center justify-center p-4">
-      {/* Brillo tras la PC */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.15)_0%,transparent_60%)] blur-2xl pointer-events-none -z-10" />
-      
-      {/* 
-        NOTA CRUCIAL: text-left es obligatorio para ASCII. 
-        El contenedor flex se encarga de centrar el dibujo en la pantalla. 
-      */}
       <pre 
         className="font-mono text-cyan-400 text-[10px] sm:text-xs md:text-sm leading-tight text-left select-none relative z-20"
         style={{ textShadow: '0 0 5px rgba(45,212,191,0.8), 0 0 10px rgba(45,212,191,0.4)' }}
@@ -304,12 +305,16 @@ export default function Home() {
           {/* FONDO 3D FULL SCREEN */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <Canvas camera={{ position: [0, 0, 25], fov: 60 }}>
-              <ambientLight intensity={1} />
+              {/* === NUEVAS LUCES PARA DAR VOLUMEN 3D === */}
+              <ambientLight intensity={0.4} />
+              <directionalLight position={[10, 20, 15]} intensity={1.5} color="#ffffff" />
+              <pointLight position={[-10, -10, -10]} intensity={1} color="#2dd4bf" />
+              <pointLight position={[15, -5, 5]} intensity={0.8} color="#8b5cf6" />
               <NeuralWeb />
             </Canvas>
           </div>
 
-          {/* OVERLAY DEGRADADO (Mejora la legibilidad del texto en la izquierda) */}
+          {/* OVERLAY DEGRADADO */}
           <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent lg:via-slate-950/50" />
 
           {/* CONTENIDO DEL HERO */}
