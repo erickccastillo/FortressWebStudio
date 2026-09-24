@@ -38,42 +38,125 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Dragón ASCII Animado ---
-const AsciiDragon = () => {
-  // Usamos un array para evitar problemas con los caracteres de escape invertidos y mantener la forma intacta
-  const dragonAscii = [
-    "                                          _   __,----'~~~~~~~~~`-----.___",
-    "                               .  .    `//====-              ____,-'~`",
-    "               -.            \\_|// .   /||\\\\  `~~~~`---.___./",
-    "         ______-==.       _-~o  `\\/    |||  \\\\           _,'`",
-    "   __,--'   ,=='||\\=_    ;_--~/_-'|-   |`\\   \\\\        ,'",
-    "_-'      ,='    | \\\\`.    '-'~7  /-   /  ||   `\\.     /",
-    ".'       ,'       |  \\\\  \\_  \"  /  /-   /   ||      \\   /",
-    "/ _____  /         |     \\\\.`-_/  /|- _/   ,||       \\ /",
-    ",-'     `-|--'~~`--_ \\     `==-/  `| \\'--===-'       _/'",
-    "          '         `-|      /|    )-'\\~'      _,--\"'",
-    "                      '-~^\\_/ |    |   `\\_   ,^             /\\",
-    "                           /  \\     \\__   \\/~               `\\__",
-    "                       _,-' _/'\\ ,-'~____-'`-/                 ``===\\",
-    "                      ((->/'    \\|||' `.     `\\.  ,                _||",
-    "                                         `\\_     _,-'~`=-<===.________/",
-    "                                            `\\_,'",
-  ].join('\n');
+// --- COMPONENTE: Dragón Chino Fluido en Canvas ---
+const FluidChineseDragon = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const numSegments = 45; 
+    const segmentSpacing = 4; 
+    const history: { x: number, y: number }[] = [];
+    let time = 0;
+    let animationFrameId: number;
+
+    const draw = () => {
+      time += 0.008; 
+      ctx.clearRect(0, 0, width, height);
+
+      const headX = (width / 2) + Math.sin(time) * (width * 0.8) + Math.cos(time * 0.7) * 300;
+      const headY = (height / 2) + Math.cos(time * 0.8) * (height * 0.6) + Math.sin(time * 1.3) * 200;
+
+      history.unshift({ x: headX, y: headY });
+      if (history.length > numSegments * segmentSpacing + 10) {
+        history.pop();
+      }
+
+      const dragonColor = 'rgba(30, 41, 59, 0.4)'; 
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      for (let i = numSegments - 1; i >= 0; i--) {
+        const index = i * segmentSpacing;
+        if (index < history.length) {
+          const pos = history[index];
+          const size = 12 - (i / numSegments) * 10; 
+
+          ctx.beginPath();
+          ctx.arc(pos.x, pos.y, Math.max(size, 1), 0, Math.PI * 2);
+          ctx.fillStyle = dragonColor;
+          ctx.fill();
+
+          if (i % 8 === 0 && i !== 0 && index + 1 < history.length) {
+            const prevPos = history[index + 1];
+            const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x);
+            
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            ctx.lineTo(pos.x + Math.cos(angle + Math.PI/2) * (size + 4), pos.y + Math.sin(angle + Math.PI/2) * (size + 4));
+            ctx.strokeStyle = dragonColor;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      if (history.length > 1) {
+        const head = history[0];
+        const neck = history[1];
+        const angle = Math.atan2(head.y - neck.y, head.x - neck.x);
+
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = dragonColor;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(head.x, head.y);
+        ctx.bezierCurveTo(
+          head.x + Math.cos(angle - 0.5) * 30, head.y + Math.sin(angle - 0.5) * 30,
+          head.x + Math.cos(angle - 1.0) * 40, head.y + Math.sin(angle - 1.0) * 40,
+          head.x + Math.cos(angle - 1.5) * 50, head.y + Math.sin(angle - 1.5) * 50
+        );
+        ctx.moveTo(head.x, head.y);
+        ctx.bezierCurveTo(
+          head.x + Math.cos(angle + 0.5) * 30, head.y + Math.sin(angle + 0.5) * 30,
+          head.x + Math.cos(angle + 1.0) * 40, head.y + Math.sin(angle + 1.0) * 40,
+          head.x + Math.cos(angle + 1.5) * 50, head.y + Math.sin(angle + 1.5) * 50
+        );
+        ctx.strokeStyle = dragonColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-30 lg:opacity-50">
-      {/* text-slate-800 se funde casi perfecto con el bg-slate-950 del fondo */}
-      <div 
-        className="animate-dragon absolute text-slate-800 font-mono whitespace-pre text-[6px] sm:text-[8px] md:text-[10px] font-bold select-none" 
-        style={{ willChange: 'transform, opacity' }}
-      >
-        {dragonAscii}
-      </div>
-    </div>
+    <canvas 
+      ref={canvasRef}
+      className="absolute inset-0 z-0 pointer-events-none opacity-60 mix-blend-screen"
+    />
   );
 };
 
-// --- COMPONENTE: Gafete Interactivo con Físicas y Tamaño Responsivo ---
+// --- COMPONENTE: Gafete Interactivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ropeRef = useRef<HTMLDivElement>(null);
@@ -283,31 +366,6 @@ export default function AboutMe() {
           animation: swing 6s ease-in-out infinite;
           transform-origin: top center;
         }
-
-        /* --- ANIMACIÓN DEL DRAGÓN --- */
-        @keyframes fly-dragon {
-          0% { 
-            transform: translate(80vw, 20vh) scale(0.6) rotate(-5deg); 
-            opacity: 0; 
-          }
-          20% { 
-            opacity: 1; 
-          }
-          50% { 
-            transform: translate(0vw, -10vh) scale(0.8) rotate(5deg); 
-          }
-          80% { 
-            opacity: 1; 
-          }
-          100% { 
-            transform: translate(-80vw, 30vh) scale(0.6) rotate(-5deg); 
-            opacity: 0; 
-          }
-        }
-        .animate-dragon {
-          /* 35 segundos crea un movimiento majestuoso y lento */
-          animation: fly-dragon 35s ease-in-out infinite;
-        }
       `}} />
 
       <button
@@ -327,8 +385,8 @@ export default function AboutMe() {
         {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
           
-          {/* El Dragón se renderiza al fondo del Hero */}
-          <AsciiDragon />
+          {/* Dragón Chino renderizado en el fondo */}
+          <FluidChineseDragon />
 
           <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow z-10 relative pointer-events-none">
             
