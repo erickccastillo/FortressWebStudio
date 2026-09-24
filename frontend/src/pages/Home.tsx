@@ -42,46 +42,50 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
 
 // --- COMPONENTES 3D: Planeta y Computadora ---
 const PlanetScene = ({ text, cursorVisible }: { text: string, cursorVisible: boolean }) => {
-  const groupRef = useRef<THREE.Group>(null);
+  const laptopRef = useRef<THREE.Group>(null);
   const planetRef1 = useRef<THREE.Mesh>(null);
   const planetRef2 = useRef<THREE.Mesh>(null);
 
-  // useFrame se ejecuta en cada frame de la animación (como requestAnimationFrame)
+  // Animaciones cuadro por cuadro
   useFrame((state, delta) => {
-    if (groupRef.current) {
-      // Girar el grupo completo (Planeta + Computadora)
-      groupRef.current.rotation.y += delta * 0.15;
-      // Añadir un leve balanceo vertical
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
+    // 1. La computadora ASCII es la protagonista que gira
+    if (laptopRef.current) {
+      // Giro constante sobre el eje Y
+      laptopRef.current.rotation.y += delta * 0.4;
+      // Leve oscilación en X para que no se vea tan rígida
+      laptopRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.1;
     }
     
-    // Girar las mallas del planeta de forma independiente para un efecto de red dinámica
+    // 2. El planeta de fondo gira muy lentamente para dar contexto
     if (planetRef1.current) {
-      planetRef1.current.rotation.y += delta * 0.2;
-      planetRef1.current.rotation.x += delta * 0.1;
+      planetRef1.current.rotation.y += delta * 0.05;
+      planetRef1.current.rotation.x += delta * 0.02;
     }
     if (planetRef2.current) {
-      planetRef2.current.rotation.y -= delta * 0.25;
-      planetRef2.current.rotation.z += delta * 0.1;
+      planetRef2.current.rotation.y -= delta * 0.03;
+      planetRef2.current.rotation.z += delta * 0.02;
     }
   });
 
   return (
-    <group ref={groupRef}>
-      {/* Esfera 1 (Planeta principal - Cyan) */}
-      <Sphere ref={planetRef1} args={[3.2, 24, 24]}>
+    <>
+      {/* Esfera 1 (Planeta principal - Cyan) - Tamaño reducido de 3.2 a 2.5 */}
+      <Sphere ref={planetRef1} args={[2.5, 24, 24]}>
         <meshBasicMaterial color="#2dd4bf" wireframe transparent opacity={0.15} />
       </Sphere>
 
-      {/* Esfera 2 (Planeta interior/atmósfera - Violeta) */}
-      <Sphere ref={planetRef2} args={[3, 16, 16]}>
+      {/* Esfera 2 (Planeta interior/atmósfera - Violeta) - Tamaño reducido de 3 a 2.3 */}
+      <Sphere ref={planetRef2} args={[2.3, 16, 16]}>
         <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.1} />
       </Sphere>
 
-      {/* Computadora ASCII incrustada en el espacio 3D */}
-      <Html transform distanceFactor={3.5}>
-        <div className="relative font-mono text-cyan-400 text-[8px] sm:text-[10px] leading-tight bg-slate-900/85 backdrop-blur-md border border-cyan-500/40 p-5 rounded-2xl shadow-[0_0_50px_-10px_rgba(45,212,191,0.3)] pointer-events-none select-none">
-          <pre className="whitespace-pre-wrap relative z-10 text-left">
+      {/* Grupo independiente para la computadora que gira */}
+      <group ref={laptopRef}>
+        {/* Usamos Html de drei. Ajustamos scale para que se vea bien dentro de la esfera de 2.5 */}
+        <Html transform center scale={0.4}>
+          {/* El contenedor original de tu ASCII */}
+          <div className="relative font-mono text-cyan-400 text-[10px] sm:text-xs leading-tight bg-slate-900/90 backdrop-blur-sm border border-cyan-500/30 p-6 md:p-8 rounded-2xl shadow-[0_0_40px_-10px_rgba(45,212,191,0.2)] pointer-events-none select-none">
+            <pre className="whitespace-pre-wrap relative z-10 text-left">
 {`   .=================================.
    | ............................... |
    | .                               . |
@@ -98,11 +102,12 @@ const PlanetScene = ({ text, cursorVisible }: { text: string, cursorVisible: boo
             /###############\\
            /=================\\
 `}
-          </pre>
-          <div className="absolute top-6 left-6 right-6 h-1/3 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-sm z-20" />
-        </div>
-      </Html>
-    </group>
+            </pre>
+            <div className="absolute top-8 left-8 right-8 h-1/3 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-sm z-20" />
+          </div>
+        </Html>
+      </group>
+    </>
   );
 };
 
@@ -112,7 +117,6 @@ const AsciiPlanetComputer = () => {
   const [cursorVisible, setCursorVisible] = useState(true);
   const fullText = "Designing for humans...\nBuilding the web_";
 
-  // Efecto de máquina de escribir
   useEffect(() => {
     let currentIndex = 0;
     const typingInterval = setInterval(() => {
@@ -135,15 +139,17 @@ const AsciiPlanetComputer = () => {
   }, []);
 
   return (
-    <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] relative cursor-move flex items-center justify-center">
-      {/* El Canvas de Three.js */}
-      <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+    // Reducimos el contenedor para que no se coma tanto espacio en la grid
+    <div className="w-full h-[350px] sm:h-[400px] lg:h-[450px] relative cursor-move flex items-center justify-center">
+      {/* 
+        Ajustamos la cámara: 
+        fov más amplio o cámara más lejos (Z: 10) para que la esfera de radio 2.5 quepa entera sin cortarse 
+      */}
+      <Canvas camera={{ position: [0, 0, 7.5], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <PlanetScene text={text} cursorVisible={cursorVisible} />
-        {/* Permite al usuario rotar la cámara con el ratón si lo desea */}
         <OrbitControls enableZoom={false} enablePan={false} />
       </Canvas>
-      {/* Sombra o destello detrás del planeta (Opcional) */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(45,212,191,0.05)_0%,transparent_60%)] pointer-events-none -z-10" />
     </div>
   );
@@ -253,7 +259,6 @@ export default function Home() {
             </div>
 
             <div className="w-full lg:w-[45%] flex justify-center lg:justify-end pb-12 lg:pb-0 animate-[fade-in_1.5s_ease-out]">
-              {/* === NUEVO COMPONENTE 3D AQUI === */}
               <AsciiPlanetComputer />
             </div>
           </div>
