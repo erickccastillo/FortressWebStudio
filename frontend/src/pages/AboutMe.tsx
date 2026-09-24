@@ -38,125 +38,6 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
   );
 };
 
-// --- COMPONENTE: Pequeñas Explosiones Ambientales (NUEVO) ---
-const AmbientExplosions = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-
-    const handleResize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
-    window.addEventListener('resize', handleResize);
-
-    // Paleta de colores del ambiente (Cian y Violeta)
-    const colors = ['#22d3ee', '#8b5cf6', '#c084fc', '#38bdf8', '#818cf8'];
-
-    interface Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      life: number;
-      decay: number;
-      color: string;
-      size: number;
-    }
-
-    let particles: Particle[] = [];
-    let animationFrameId: number;
-
-    const createExplosion = (x: number, y: number) => {
-      const numParticles = Math.random() * 15 + 10; // 10 a 25 partículas por explosión
-      const explosionColor = colors[Math.floor(Math.random() * colors.length)];
-      
-      for (let i = 0; i < numParticles; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 1.5 + 0.5;
-        particles.push({
-          x,
-          y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          life: 1, // Vida inicial (opacidad)
-          decay: Math.random() * 0.015 + 0.01, // Velocidad a la que desaparece
-          color: explosionColor,
-          size: Math.random() * 2 + 1 // Tamaño de la partícula
-        });
-      }
-    };
-
-    const draw = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      // Probabilidad de generar una nueva explosión en cada frame (aprox 2-3 por segundo)
-      if (Math.random() < 0.03) {
-        createExplosion(Math.random() * width, Math.random() * height);
-      }
-
-      ctx.globalCompositeOperation = 'lighter'; // Efecto de brillo al superponerse
-
-      // Actualizar y dibujar partículas
-      for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
-        
-        // Fricción para que se ralenticen suavemente
-        p.vx *= 0.95;
-        p.vy *= 0.95;
-
-        if (p.life <= 0) {
-          particles.splice(i, 1);
-        } else {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.globalAlpha = Math.max(0, p.life);
-          
-          // Ligero resplandor
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = p.color;
-          
-          ctx.fill();
-        }
-      }
-
-      ctx.globalAlpha = 1; // Resetear el alpha para el siguiente frame
-      ctx.shadowBlur = 0;
-
-      animationFrameId = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return (
-    <canvas 
-      ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none opacity-80"
-    />
-  );
-};
-
 // --- COMPONENTE: Gafete Interactivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -340,6 +221,7 @@ export default function AboutMe() {
       className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       
+      {/* Luz de cursor (ligera) que no consume apenas recursos */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
@@ -385,9 +267,6 @@ export default function AboutMe() {
     
         {/* --- 1. SECCIÓN HERO --- */}
         <section className="relative flex flex-col items-center justify-center min-h-[100dvh] px-4 sm:px-6 w-full max-w-7xl mx-auto pt-24 pb-10">
-          
-          {/* Pequeñas explosiones/destellos renderizados en el fondo */}
-          <AmbientExplosions />
 
           <div className="w-full flex flex-col lg:flex-row-reverse items-center justify-between gap-12 lg:gap-8 flex-grow z-10 relative pointer-events-none">
             
