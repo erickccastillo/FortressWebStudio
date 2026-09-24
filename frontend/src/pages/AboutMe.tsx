@@ -39,10 +39,14 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
 };
 
 // --- COMPONENTE: Gafete Interactivo ---
+// --- COMPONENTE: Gafete Interactivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ropeRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
+  
+  // NUEVO: Estado para saber si la imagen ya cargó
+  const [imgLoaded, setImgLoaded] = useState(false);
   
   const isDragging = useRef(false);
   const pos = useRef({ x: 0, y: 0 }); 
@@ -52,10 +56,8 @@ const DraggableBadge = () => {
 
   const updateTransform = () => {
     if (!containerRef.current || !badgeRef.current || !ropeRef.current) return;
-
     const angle = pos.current.x * 0.12; 
     const translateY = pos.current.y;
-    
     const ropeBaseHeight = 90; 
     const scaleY = Math.max(0.1, (ropeBaseHeight + translateY) / ropeBaseHeight);
 
@@ -66,13 +68,10 @@ const DraggableBadge = () => {
 
   const animatePhysics = () => {
     if (isDragging.current) return;
-
     vel.current.x += -pos.current.x * 0.04; 
     vel.current.x *= 0.94; 
-
     vel.current.y += -pos.current.y * 0.15; 
     vel.current.y *= 0.82; 
-
     pos.current.x += vel.current.x;
     pos.current.y += vel.current.y;
 
@@ -107,16 +106,13 @@ const DraggableBadge = () => {
   useEffect(() => {
     const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging.current) return;
-
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-
       const newX = clientX - startMouse.current.x;
       const newY = clientY - startMouse.current.y;
 
       pos.current.x = Math.max(-350, Math.min(350, newX * 0.6));
       pos.current.y = Math.max(-30, Math.min(250, newY * 0.6)); 
-
       updateTransform();
     };
 
@@ -164,11 +160,21 @@ const DraggableBadge = () => {
         >
           <div className="w-12 md:w-16 h-1.5 md:h-2 bg-slate-950/80 rounded-full mb-3 sm:mb-4 lg:mb-5 shadow-inner border border-slate-800/50 pointer-events-none"></div>
 
+          {/* CONTENEDOR DE LA IMAGEN CON SKELETON LOADER */}
           <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-slate-800 relative group pointer-events-none shadow-sm">
+            
+            {/* Skeleton que pulsa mientras imgLoaded sea false */}
+            {!imgLoaded && (
+              <div className="absolute inset-0 bg-slate-700 animate-pulse"></div>
+            )}
+
             <img 
               src={miFoto} 
               alt="Erick Alexander Castillo" 
-              className="w-full h-full object-cover object-center"
+              onLoad={() => setImgLoaded(true)} // Se dispara cuando la imagen se descarga completa
+              className={`w-full h-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
             />
             <div className="absolute inset-0 border border-slate-700/50 rounded-lg"></div>
           </div>
