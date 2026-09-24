@@ -166,9 +166,7 @@ export default function Home() {
             <div className="w-full lg:w-[55%] text-left flex flex-col items-start pt-12 lg:pt-0 animate-[fade-in_1s_ease-out]">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 mb-8 shadow-sm">
                 <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                <p className="text-slate-300 text-xs font-semibold tracking-widest uppercase">
-                  Fortress Web Studio
-                </p>
+               
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
