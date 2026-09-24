@@ -36,12 +36,7 @@ export default function Header() {
 
         {/* Navegación y Acciones (ESCRITORIO) */}
         <div className="hidden md:flex items-center gap-6">
-          <Link
-            to="/work"
-            className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors duration-300 tracking-wide"
-          >
-            Our Work
-          </Link>
+         
 
           <Link
             to="/aboutme"

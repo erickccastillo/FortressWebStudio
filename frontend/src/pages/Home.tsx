@@ -374,7 +374,7 @@ export default function Home() {
             <div className="space-y-8 text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose text-left md:text-center">
               <FadeInSection delay="delay-100">
                 <p>
-                  Fortress Web Studio is a remote-first web development company
+                  Fortress Web Studio is a remote-first web development team
                   dedicated to helping businesses establish a professional and
                   effective digital presence. We specialize in designing and building
                   modern websites that blend great user experience with strong
