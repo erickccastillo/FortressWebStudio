@@ -245,16 +245,13 @@ const AsciiDesktop = () => {
 
 
 // --- COMPONENTE PRINCIPAL ---
+// --- COMPONENTE PRINCIPAL ---
 export default function Home() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // Eliminamos mousePosition, solo dejamos lo necesario
   const [showScrollTop, setShowScrollTop] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
     const handleScroll = () => {
       if (window.scrollY > 300) {
         setShowScrollTop(true);
@@ -263,11 +260,9 @@ export default function Home() {
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
     
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
@@ -311,17 +306,16 @@ export default function Home() {
           
           {/* FONDO 3D FULL SCREEN */}
           <div className="absolute inset-0 z-0 pointer-events-none">
-            {/* Alejamos la cámara a 25 para ver toda la constelación */}
             <Canvas camera={{ position: [0, 0, 25], fov: 60 }}>
               <ambientLight intensity={1} />
               <NeuralWeb />
             </Canvas>
           </div>
 
-          {/* OVERLAY DEGRADADO (Para asegurar la legibilidad del texto en la izquierda) */}
+          {/* OVERLAY DEGRADADO */}
           <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent lg:via-slate-950/50" />
 
-          {/* CONTENIDO DEL HERO (Texto a la izquierda, Computadora a la derecha) */}
+          {/* CONTENIDO DEL HERO */}
           <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow relative z-20">
             
             {/* TEXTO IZQUIERDO */}
