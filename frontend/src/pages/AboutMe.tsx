@@ -39,7 +39,6 @@ const FadeInSection = ({ children, delay = 'delay-0' }: { children: ReactNode, d
 };
 
 // --- COMPONENTE: Gafete Interactivo ---
-// --- COMPONENTE: Gafete Interactivo ---
 const DraggableBadge = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const ropeRef = useRef<HTMLDivElement>(null);
@@ -147,7 +146,7 @@ const DraggableBadge = () => {
       >
         <div 
           ref={ropeRef}
-          className="w-[1.5px] h-8 sm:h-10 md:h-14 lg:h-16 xl:h-20 bg-gradient-to-b from-slate-600 to-cyan-500/80 pointer-events-none origin-top"
+          className="w-[1.5px] h-8 sm:h-10 md:h-14 lg:h-16 xl:h-20 bg-gradient-to-b from-slate-600 to-blue-500/80 pointer-events-none origin-top"
           style={{ willChange: 'transform' }}
         ></div>
         
@@ -155,7 +154,7 @@ const DraggableBadge = () => {
           ref={badgeRef}
           onMouseDown={handleDown}
           onTouchStart={handleDown}
-          className="w-36 sm:w-44 md:w-52 lg:w-60 xl:w-64 relative bg-slate-900 border border-slate-700 rounded-xl lg:rounded-2xl p-3 sm:p-4 md:p-5 shadow-[0_0_30px_-10px_rgba(45,212,191,0.2)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-cyan-500/50 transition-colors"
+          className="w-36 sm:w-44 md:w-52 lg:w-60 xl:w-64 relative bg-slate-900 border border-slate-700 rounded-xl lg:rounded-2xl p-3 sm:p-4 md:p-5 shadow-[0_0_30px_-10px_rgba(96,165,250,0.3)] backdrop-blur-md flex flex-col items-center cursor-grab active:cursor-grabbing hover:border-blue-500/50 transition-colors"
           style={{ willChange: 'transform' }}
         >
           <div className="w-12 md:w-16 h-1.5 md:h-2 bg-slate-950/80 rounded-full mb-3 sm:mb-4 lg:mb-5 shadow-inner border border-slate-800/50 pointer-events-none"></div>
@@ -181,7 +180,7 @@ const DraggableBadge = () => {
           
           <div className="text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-base text-slate-400 tracking-[0.1em] text-center font-mono mt-4 lg:mt-5 mb-1 lg:mb-2 uppercase font-semibold pointer-events-none w-full">
             <span className="block mb-1 text-slate-300">Computer Eng.</span>
-            <span className="block text-cyan-500/80 tracking-[0.2em]">2026</span>
+            <span className="block text-blue-500/80 tracking-[0.2em]">2026</span>
           </div>
         </div>
       </div>
@@ -224,18 +223,18 @@ export default function AboutMe() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-violet-500/30 relative flex flex-col w-full overflow-x-hidden"
+      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-blue-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       
-      {/* Luz de cursor (ligera) que no consume apenas recursos */}
+      {/* Luz de cursor (más notoria) con la nueva paleta (Blue) y mayor opacidad (0.18 en lugar de 0.04) */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-500 hidden lg:block"
         style={{
-          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(139, 92, 246, 0.04), transparent 40%)`
+          background: `radial-gradient(800px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(96, 165, 250, 0.18), transparent 50%)`
         }}
       />
 
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/5 via-slate-950 to-slate-950 lg:hidden"></div>
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/15 via-slate-950 to-slate-950 lg:hidden"></div>
 
       <style dangerouslySetInnerHTML={{__html: `
         html { scroll-behavior: smooth !important; }
@@ -259,7 +258,7 @@ export default function AboutMe() {
 
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(45,212,191,0.3)] text-cyan-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-cyan-500/50 ${
+        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(96,165,250,0.4)] text-blue-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-blue-500/50 ${
           showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
         }`}
         aria-label="Back to top"
@@ -289,7 +288,7 @@ export default function AboutMe() {
                 Erick Alexander <br className="hidden lg:block"/> Castillo
               </h1>
               
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mb-8 tracking-tight">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-slate-200 mb-8 tracking-tight">
                 Full-Stack Developer
               </h2>
               
@@ -303,7 +302,7 @@ export default function AboutMe() {
                   href="https://www.linkedin.com/in/erick-alexander-castillo-chavez-987121426"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-blue-500/50 text-blue-400 hover:bg-blue-500/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
                 >
                   <span className="font-extrabold font-serif">in</span>
                   LinkedIn
@@ -313,7 +312,7 @@ export default function AboutMe() {
                   href="https://wa.me/523328317497?text=Hi,%20I'm%20interested."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-violet-500/50 text-violet-400 hover:bg-violet-500/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 border border-slate-700 hover:border-slate-400/50 text-slate-200 hover:bg-slate-400/10 px-6 sm:px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-sm md:text-base shadow-lg"
                 >
                   <MessageCircle size={18} className="md:w-[20px] md:h-[20px]" />
                   WhatsApp
@@ -334,7 +333,7 @@ export default function AboutMe() {
         </section>
 
         {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
         {/* --- 2. SECCIÓN MISIÓN --- */}
         <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
@@ -344,7 +343,7 @@ export default function AboutMe() {
                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
                   My Mission
                 </h3>
-                <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-violet-400 mt-6 rounded-full"></div>
+                <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-slate-200 mt-6 rounded-full"></div>
               </div>
             </FadeInSection>
           
@@ -377,7 +376,7 @@ export default function AboutMe() {
         </section>
 
         {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-400/20 to-transparent" />
 
         {/* --- 3. SECCIÓN SOBRE MÍ --- */}
         <section className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
@@ -387,7 +386,7 @@ export default function AboutMe() {
                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
                   About Me & Academic Trajectory
                 </h3>
-                <div className="h-1 w-32 bg-gradient-to-r from-violet-400 to-cyan-400 mt-6 rounded-full"></div>
+                <div className="h-1 w-32 bg-gradient-to-r from-slate-200 to-blue-400 mt-6 rounded-full"></div>
               </div>
             </FadeInSection>
 
@@ -401,7 +400,7 @@ export default function AboutMe() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 via-slate-900/20 to-transparent"></div>
                   <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-8 md:bottom-8 md:left-10 bg-slate-950/80 px-5 py-2.5 rounded-xl backdrop-blur-md border border-slate-800">
-                    <span className="text-xs sm:text-sm md:text-base text-violet-400 font-mono tracking-widest uppercase">
+                    <span className="text-xs sm:text-sm md:text-base text-blue-400 font-mono tracking-widest uppercase">
                       Alma mater • CUCEI UDG
                     </span>
                   </div>
@@ -432,7 +431,7 @@ export default function AboutMe() {
         </section>
 
         {/* LÍNEA DIVISORA */}
-        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
         {/* --- 4. SECCIÓN EXPERIENCIA --- */}
         <section className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
@@ -442,20 +441,20 @@ export default function AboutMe() {
                 <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center">
                   Professional Experience
                 </h3>
-                <div className="h-1 w-24 bg-gradient-to-r from-cyan-400 to-violet-400 mt-6 rounded-full"></div>
+                <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-slate-200 mt-6 rounded-full"></div>
               </div>
             </FadeInSection>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 w-full">
               
               <FadeInSection delay="delay-100">
-                <div className="bg-slate-950 border-t-4 border-t-cyan-400 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
+                <div className="bg-slate-950 border-t-4 border-t-blue-400 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
                   <div className="mb-6">
                     <span className="inline-block px-4 py-1.5 bg-slate-900 text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-6">
                       2026 — Present
                     </span>
                     <h4 className="text-2xl md:text-3xl font-bold text-white mb-2">Data Analyst Intern</h4>
-                    <h5 className="text-cyan-400 text-lg md:text-xl font-medium">Eaton Cooper Power Series</h5>
+                    <h5 className="text-blue-400 text-lg md:text-xl font-medium">Eaton Cooper Power Series</h5>
                   </div>
                   <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 flex-grow">
                     Accelerated workflow efficiency through targeted data reporting, database 
@@ -472,13 +471,13 @@ export default function AboutMe() {
               </FadeInSection>
 
               <FadeInSection delay="delay-200">
-                <div className="bg-slate-950 border-t-4 border-t-violet-400 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
+                <div className="bg-slate-950 border-t-4 border-t-slate-300 border-x border-b border-slate-800 rounded-3xl p-8 md:p-10 flex flex-col h-full shadow-lg">
                   <div className="mb-6">
                     <span className="inline-block px-4 py-1.5 bg-slate-900 text-slate-400 text-xs md:text-sm rounded-full border border-slate-800 mb-6">
                       2024 — 2026
                     </span>
                     <h4 className="text-2xl md:text-3xl font-bold text-white mb-2">Assistant Programmer</h4>
-                    <h5 className="text-violet-400 text-lg md:text-xl font-medium">DIVTIC LAB, UDG</h5>
+                    <h5 className="text-slate-300 text-lg md:text-xl font-medium">DIVTIC LAB, UDG</h5>
                   </div>
                   <p className="text-slate-400 text-base md:text-lg leading-relaxed mb-8 flex-grow">
                     Supported development activities related to databases, web applications, 
