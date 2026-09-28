@@ -51,22 +51,23 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050810] flex items-center justify-center px-6">
-      {/* Glow de fondo */}
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-6">
+      {/* Glow de fondo actualizado a azul */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-500/10 blur-[150px] rounded-full" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-500/10 blur-[150px] rounded-full" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-[#0d1421]/80 backdrop-blur-xl border border-cyan-900/30 rounded-3xl p-8 shadow-[0_0_40px_rgba(6,182,212,0.08)]">
+        <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-3xl p-8 shadow-[0_0_40px_rgba(96,165,250,0.08)]">
           
           {/* Branding */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-[#121b29] border border-cyan-900/40 flex items-center justify-center mb-4 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+            {/* Logo limpio como en el Header */}
+            <div className="w-16 h-16 flex items-center justify-center mb-4">
               <img 
                 src={logo} 
                 alt="Fortress Web Studio" 
-                className="w-full h-full object-contain p-2" 
+                className="w-full h-full object-contain" 
               />
             </div>
 
@@ -87,11 +88,11 @@ export default function Login() {
             )}
 
             <div>
-              <label className="block text-sm text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Email Address
               </label>
-              <div className="flex items-center gap-3 bg-[#111827] border border-slate-700 rounded-xl px-4 py-3 focus-within:border-cyan-500 transition-colors">
-                <Mail size={18} className="text-cyan-400" />
+              <div className="flex items-center gap-3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus-within:border-blue-500 focus-within:shadow-[0_0_15px_rgba(96,165,250,0.15)] transition-all">
+                <Mail size={18} className="text-blue-400" />
                 <input
                   type="email"
                   value={email}
@@ -104,11 +105,11 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Password
               </label>
-              <div className="flex items-center gap-3 bg-[#111827] border border-slate-700 rounded-xl px-4 py-3 focus-within:border-cyan-500 transition-colors">
-                <Lock size={18} className="text-cyan-400" />
+              <div className="flex items-center gap-3 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 focus-within:border-blue-500 focus-within:shadow-[0_0_15px_rgba(96,165,250,0.15)] transition-all">
+                <Lock size={18} className="text-blue-400" />
                 <input
                   type="password"
                   value={password}
@@ -123,21 +124,21 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 disabled:hover:bg-cyan-400 text-slate-950 font-bold py-3 rounded-xl transition-all"
+              className="w-full flex justify-center items-center gap-2 bg-blue-500 hover:bg-blue-400 disabled:opacity-50 disabled:hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 mt-2"
             >
               {loading ? <Loader2 size={20} className="animate-spin" /> : "Sign In"}
             </button>
 
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm mt-6 pt-4 border-t border-slate-800">
               <Link
                 to="/forgot-password"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
               >
                 Forgot password?
               </Link>
               <Link
                 to="/"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-slate-400 hover:text-white transition-colors font-medium"
               >
                 Back to Home
               </Link>
