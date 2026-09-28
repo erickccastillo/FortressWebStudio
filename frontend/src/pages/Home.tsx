@@ -55,8 +55,9 @@ const NeuralWeb = () => {
     const sca = new Float32Array(PARTICLE_COUNT);
     const col = new Float32Array(PARTICLE_COUNT * 3);
 
-    const cyan = new THREE.Color('#2dd4bf');
-    const violet = new THREE.Color('#8b5cf6');
+    // Paleta limpia y profesional: Azul claro y Blanco/Plata
+    const blueColor = new THREE.Color('#60a5fa');
+    const silverColor = new THREE.Color('#f8fafc');
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       let radius = INNER_RADIUS + Math.random() * (OUTER_RADIUS - INNER_RADIUS);
@@ -73,7 +74,7 @@ const NeuralWeb = () => {
 
       sca[i] = Math.random() * 0.08 + 0.08;
 
-      const mixedColor = cyan.clone().lerp(violet, Math.random());
+      const mixedColor = blueColor.clone().lerp(silverColor, Math.random());
       col[i * 3] = mixedColor.r;
       col[i * 3 + 1] = mixedColor.g;
       col[i * 3 + 2] = mixedColor.b;
@@ -174,11 +175,74 @@ const NeuralWeb = () => {
             args={[linePositions, 3]}
           />
         </bufferGeometry>
-        <lineBasicMaterial color="#6366f1" transparent opacity={0.25} blending={THREE.AdditiveBlending} />
+        {/* Líneas de conexión con color azul profesional */}
+        <lineBasicMaterial color="#3b82f6" transparent opacity={0.25} blending={THREE.AdditiveBlending} />
       </lineSegments>
     </group>
   );
 };
+
+// --- COMPONENTE: Computadora ASCII (Simetría Perfecta) ---
+const AsciiDesktop = () => {
+  const [text, setText] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const fullText = "Designing for humans";
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= fullText.length) {
+        setText(fullText.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 100);
+
+    const cursorInterval = setInterval(() => {
+      setCursorVisible((prev) => !prev);
+    }, 500);
+
+    return () => {
+      clearInterval(typingInterval);
+      clearInterval(cursorInterval);
+    };
+  }, []);
+
+  const screenWidth = 26;
+  const typedLine = `>_ ${text}${cursorVisible ? '█' : ''}`;
+  const paddedLine = typedLine.padEnd(screenWidth, ' ');
+
+  return (
+    <div className="relative flex flex-col items-center justify-center p-4">
+      {/* Resplandor adaptado a la nueva paleta (Azul claro) */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(96,165,250,0.15)_0%,transparent_60%)] blur-2xl pointer-events-none -z-10" />
+      <pre 
+        className="font-mono text-blue-400 text-[10px] sm:text-xs md:text-sm leading-tight text-left select-none relative z-20"
+        style={{ textShadow: '0 0 5px rgba(96,165,250,0.8), 0 0 10px rgba(96,165,250,0.4)' }}
+      >
+{`     .------------------------------.
+     | .--------------------------. |
+     | |                          | |
+     | | Fortress Web Studio      | |
+     | | System Initialized...    | |
+     | | ${paddedLine} | |
+     | |                          | |
+     | '--------------------------' |
+     '------------------------------'
+                    ||
+          .---------''---------.
+         /                      \\
+        /========================\\
+   [ [Esc] [F1] [F2] [F3] [F4] [F5] ]
+   [ [Q] [W] [E] [R] [T] [Y] [U] [I] ]
+   [ [A] [S] [D] [F] [G] [H] [J] [K] ]
+   [ [Ctrl] [Alt] [  Space  ] [Ctrl] ]`}
+      </pre>
+    </div>
+  );
+};
+
 
 // --- COMPONENTE PRINCIPAL ---
 export default function Home() {
@@ -208,31 +272,27 @@ export default function Home() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-black text-zinc-300 selection:bg-white selection:text-black relative flex flex-col w-full overflow-x-hidden"
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      className="min-h-screen bg-slate-950 text-slate-300 font-sans selection:bg-blue-500/30 relative flex flex-col w-full overflow-x-hidden"
     >
       <style dangerouslySetInnerHTML={{__html: `
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;700;800&display=swap');
         html { scroll-behavior: smooth !important; overflow-x: hidden !important; }
         body {
-          background-color: #000000 !important;
+          background-color: #020617 !important;
           overflow-x: hidden !important;
           margin: 0;
           padding: 0;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
         }
       `}} />
 
       {/* --- BOTÓN FLOTANTE --- */}
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-zinc-900 border border-zinc-800 text-white transition-all duration-500 hover:bg-white hover:text-black hover:scale-105 ${
+        className={`fixed bottom-8 right-8 z-50 p-3.5 rounded-full bg-slate-900 border border-slate-700 shadow-[0_0_20px_-5px_rgba(96,165,250,0.3)] text-blue-400 transition-all duration-500 hover:bg-slate-800 hover:scale-110 hover:border-blue-500/50 ${
           showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
         }`}
         aria-label="Back to top"
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
       </button>
@@ -245,63 +305,76 @@ export default function Home() {
           {/* FONDO 3D FULL SCREEN */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             <Canvas camera={{ position: [0, 0, 25], fov: 60 }}>
-              <ambientLight intensity={0.4} />
+              {/* Luces ajustadas para la nueva paleta de tonos fríos */}
+              <ambientLight intensity={0.5} />
               <directionalLight position={[10, 20, 15]} intensity={1.5} color="#ffffff" />
-              <pointLight position={[-10, -10, -10]} intensity={1} color="#2dd4bf" />
-              <pointLight position={[15, -5, 5]} intensity={0.8} color="#8b5cf6" />
+              <pointLight position={[-10, -10, -10]} intensity={1} color="#60a5fa" />
+              <pointLight position={[15, -5, 5]} intensity={0.8} color="#f8fafc" />
               <NeuralWeb />
             </Canvas>
           </div>
 
-          {/* OVERLAY DEGRADADO (Más agresivo para limpieza visual) */}
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-b from-black/40 via-black/80 to-black" />
+          {/* OVERLAY DEGRADADO */}
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent lg:via-slate-950/50" />
 
-          {/* CONTENIDO DEL HERO (Centrado) */}
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center justify-center text-center gap-8 flex-grow relative z-20">
+          {/* CONTENIDO DEL HERO */}
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8 flex-grow relative z-20">
             
-            <div className="w-full flex flex-col items-center animate-[fade-in_1s_ease-out]">
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white mb-6 tracking-tighter leading-[1.05]">
-                Modern Web
-                <br className="hidden sm:block" /> Development
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-violet-400 mt-4 text-4xl sm:text-5xl lg:text-6xl">
+            {/* TEXTO IZQUIERDO */}
+            <div className="w-full lg:w-[50%] text-left flex flex-col items-start animate-[fade-in_1s_ease-out]">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.1]">
+                Modern Web Development
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-slate-100 mt-2">
                   Built for Growing Businesses
                 </span>
               </h1>
 
-              <p className="text-zinc-400 font-light text-lg sm:text-xl md:text-2xl leading-relaxed max-w-3xl mb-10">
+              <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl mb-8">
                 Fortress Web Studio is a remote web development team focused on
                 creating modern websites, custom digital solutions, and scalable
-                online experiences that help businesses strengthen their presence.
+                online experiences that help businesses strengthen their presence,
+                attract new customers, and achieve long-term growth.
               </p>
 
-              <div className="flex flex-wrap justify-center gap-4 mt-2">
-                <a href="#who-we-are" className="px-8 py-3.5 rounded-full bg-white text-black hover:bg-zinc-200 transition-colors text-sm font-bold tracking-wide">
+              <div className="flex flex-wrap gap-4 mt-2">
+                <a href="#who-we-are" className="px-6 py-2.5 rounded-full border border-blue-500/40 text-blue-400 hover:bg-blue-500/20 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
                   Who We Are
                 </a>
-                <a href="#mission-values" className="px-8 py-3.5 rounded-full border border-zinc-700 text-white hover:border-white hover:bg-white/5 transition-all text-sm font-bold tracking-wide">
+                <a href="#mission-values" className="px-6 py-2.5 rounded-full border border-slate-500/40 text-slate-300 hover:bg-slate-500/20 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
                   Mission & Values
                 </a>
+                <a href="#how-we-work" className="px-6 py-2.5 rounded-full border border-slate-700 text-slate-300 hover:bg-slate-800 backdrop-blur-sm transition-colors text-sm font-medium tracking-wide">
+                  How We Work
+                </a>
               </div>
+            </div>
+
+            {/* ZONA DERECHA: COMPUTADORA ASCII */}
+            <div className="w-full lg:w-[50%] h-[450px] lg:h-[650px] flex items-center justify-center relative animate-[fade-in_1.5s_ease-out]">
+              <AsciiDesktop />
             </div>
 
           </div>
         </section>
 
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent relative z-20" />
+
         {/* --- 2. SECCIÓN: WHO WE ARE --- */}
-        <section id="who-we-are" className="w-full bg-black py-24 md:py-32 px-4 sm:px-6 relative z-10 border-t border-zinc-900">
+        <section id="who-we-are" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <FadeInSection>
-              <div className="mb-12 md:mb-16 flex flex-col items-center">
-                <h3 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
+              <div className="mb-10 md:mb-14 flex flex-col items-center">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
                   Who We Are
                 </h3>
+                <div className="h-1 w-24 bg-gradient-to-r from-blue-400 to-slate-200 mt-6 rounded-full"></div>
               </div>
             </FadeInSection>
           
-            <div className="space-y-10 text-zinc-400 font-light text-xl md:text-2xl leading-relaxed text-left md:text-center">
+            <div className="space-y-8 text-slate-300 text-lg md:text-xl leading-relaxed md:leading-loose text-left md:text-center">
               <FadeInSection delay="delay-100">
                 <p>
-                  <strong className="text-white font-medium">Fortress Web Studio</strong> is a remote-first web development team
+                  Fortress Web Studio is a remote-first web development team
                   dedicated to helping businesses establish a professional and
                   effective digital presence. We specialize in designing and building
                   modern websites that blend great user experience with strong
@@ -316,29 +389,43 @@ export default function Home() {
                   and consistency in every solution we deliver.
                 </p>
               </FadeInSection>
+
+              <FadeInSection delay="delay-300">
+                <p>
+                  Whether developing a company website, a custom platform, or a
+                  complete digital experience, our goal remains the same: creating
+                  reliable solutions that support business success.
+                </p>
+              </FadeInSection>
             </div>
           </div>
         </section>
 
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-500/20 to-transparent" />
+
         {/* --- 3. SECCIÓN: MISSION & VALUES --- */}
-        <section id="mission-values" className="w-full bg-zinc-950 py-24 md:py-32 px-4 sm:px-6 border-t border-zinc-900">
+        <section id="mission-values" className="w-full bg-slate-950 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
             
             <div className="lg:col-span-7">
               <FadeInSection>
-                <div className="bg-black border border-zinc-800/50 rounded-3xl p-10 md:p-14 h-full shadow-2xl">
-                  <div className="mb-10">
-                    <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Our Mission</h3>
+                <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-8 md:p-12 h-full">
+                  <div className="mb-8">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white">Our Mission</h3>
+                    <div className="h-[2px] w-16 bg-blue-400 mt-4"></div>
                   </div>
-                  <p className="text-zinc-400 font-light text-lg sm:text-xl leading-relaxed mb-8">
+                  <p className="text-slate-300 text-lg leading-relaxed mb-6">
                     At Fortress Web Studio, our mission is to empower businesses through
                     innovative web solutions that combine exceptional design, modern
-                    technology, and strategic thinking.
-                  </p>
-                  <p className="text-zinc-400 font-light text-lg sm:text-xl leading-relaxed">
-                    We believe a website should be more than an online presence. It should become a powerful tool that
+                    technology, and strategic thinking. We believe a website should be
+                    more than an online presence. It should become a powerful tool that
                     supports business growth, improves customer engagement, and creates
                     lasting value.
+                  </p>
+                  <p className="text-slate-300 text-lg leading-relaxed">
+                    By combining technical expertise with a client-focused approach, we
+                    deliver digital products designed to meet real business needs while
+                    maintaining reliability, performance, and scalability.
                   </p>
                 </div>
               </FadeInSection>
@@ -346,17 +433,18 @@ export default function Home() {
 
             <div className="lg:col-span-5">
               <FadeInSection delay="delay-200">
-                <div className="bg-black border border-zinc-800/50 rounded-3xl p-10 md:p-14 h-full shadow-2xl">
-                  <div className="mb-10">
-                    <h3 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Our Values</h3>
+                <div className="bg-gradient-to-b from-slate-900 to-slate-900/50 border border-slate-800 rounded-3xl p-8 md:p-12 h-full">
+                  <div className="mb-8">
+                    <h3 className="text-2xl sm:text-3xl font-bold text-white">Our Values</h3>
+                    <div className="h-[2px] w-16 bg-slate-300 mt-4"></div>
                   </div>
-                  <p className="text-zinc-400 font-light text-lg leading-relaxed mb-8">
-                    The foundation of our work is built on principles that
-                    guide every decision and client relationship.
+                  <p className="text-slate-400 leading-relaxed mb-8">
+                    The foundation of Fortress Web Studio is built on principles that
+                    guide every decision, project, and client relationship.
                   </p>
                   <div className="flex flex-wrap gap-3">
-                    {['Commitment', 'Transparency', 'Organization', 'Communication', 'Innovation', 'Reliability', 'Quality', 'Professionalism'].map((value) => (
-                      <span key={value} className="px-5 py-2.5 bg-zinc-900 text-white text-sm rounded-full font-medium tracking-wide">
+                    {['Commitment', 'Transparency', 'Organization', 'Communication', 'Innovation', 'Reliability', 'Quality', 'Professionalism', 'Collaboration', 'Growth'].map((value) => (
+                      <span key={value} className="px-4 py-2 bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-full font-medium">
                         {value}
                       </span>
                     ))}
@@ -368,48 +456,51 @@ export default function Home() {
           </div>
         </section>
 
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+
         {/* --- 4. SECCIÓN: HOW WE WORK --- */}
-        <section id="how-we-work" className="w-full bg-black py-24 md:py-32 px-4 sm:px-6 border-t border-zinc-900">
+        <section id="how-we-work" className="w-full bg-slate-900 py-20 md:py-28 px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <FadeInSection>
-              <div className="mb-16 md:mb-20 flex flex-col items-center text-center">
-                <h3 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight">
+              <div className="mb-12 md:mb-16 flex flex-col items-center text-center">
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
                   How We Work
                 </h3>
+                <div className="h-1 w-24 bg-gradient-to-r from-slate-200 to-blue-400 mt-6 rounded-full"></div>
               </div>
             </FadeInSection>
           
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               <FadeInSection delay="delay-100">
-                <div className="bg-zinc-950 border border-zinc-800/50 hover:border-zinc-700 transition-colors rounded-2xl p-10 h-full">
-                  <h4 className="text-white text-2xl font-bold mb-5 tracking-tight">Remote Collaboration</h4>
-                  <p className="text-zinc-400 font-light leading-relaxed text-lg">
+                <div className="bg-slate-950 border-t-4 border-t-blue-400 border-x border-b border-slate-800 rounded-2xl p-8 md:p-10 shadow-lg h-full">
+                  <h4 className="text-white text-xl font-bold mb-4">Remote Collaboration</h4>
+                  <p className="text-slate-400 leading-relaxed text-base">
                     Operating remotely allows us to work with businesses from different
                     locations while maintaining flexibility, responsiveness, and
-                    efficient communication throughout every stage.
+                    efficient communication throughout every stage of a project.
                   </p>
                 </div>
               </FadeInSection>
           
               <FadeInSection delay="delay-200">
-                <div className="bg-zinc-950 border border-zinc-800/50 hover:border-zinc-700 transition-colors rounded-2xl p-10 h-full">
-                  <h4 className="text-white text-2xl font-bold mb-5 tracking-tight">Organized Process</h4>
-                  <p className="text-zinc-400 font-light leading-relaxed text-lg">
+                <div className="bg-slate-950 border-t-4 border-t-slate-300 border-x border-b border-slate-800 rounded-2xl p-8 md:p-10 shadow-lg h-full">
+                  <h4 className="text-white text-xl font-bold mb-4">Organized Process</h4>
+                  <p className="text-slate-400 leading-relaxed text-base">
                     Every project follows a structured workflow with clear milestones,
                     transparent planning, regular updates, and defined objectives that
-                    keep progress measurable.
+                    keep progress measurable and predictable.
                   </p>
                 </div>
               </FadeInSection>
           
               <FadeInSection delay="delay-300">
-                <div className="bg-zinc-950 border border-zinc-800/50 hover:border-zinc-700 transition-colors rounded-2xl p-10 h-full">
-                  <h4 className="text-white text-2xl font-bold mb-5 tracking-tight">Excellence</h4>
-                  <p className="text-zinc-400 font-light leading-relaxed text-lg">
+                <div className="bg-slate-950 border-t-4 border-t-blue-400 border-x border-b border-slate-800 rounded-2xl p-8 md:p-10 shadow-lg h-full">
+                  <h4 className="text-white text-xl font-bold mb-4">Commitment to Excellence</h4>
+                  <p className="text-slate-400 leading-relaxed text-base">
                     We are committed to delivering dependable solutions, providing
                     ongoing support, and maintaining high standards of quality,
-                    performance, and professionalism.
+                    performance, and professionalism in every project.
                   </p>
                 </div>
               </FadeInSection>
