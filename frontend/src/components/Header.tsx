@@ -17,11 +17,12 @@ export default function Header() {
         
         {/* Logo (Lado Izquierdo) */}
         <Link to="/" className="group flex items-center gap-3">
-          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center shadow-[0_0_15px_rgba(96,165,250,0.05)] group-hover:border-blue-500/40 group-hover:shadow-[0_0_20px_rgba(96,165,250,0.15)] transition-all duration-300 overflow-hidden">
+          {/* Contenedor limpio: sin fondo, sin bordes. Solo controla tamaño y añade un sutil efecto al pasar el mouse */}
+          <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:brightness-125 group-hover:drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]">
             <img 
               src={logo} 
               alt="Fortress Web Studio" 
-              className="w-full h-full object-contain p-1.5" 
+              className="w-full h-full object-contain" 
             />
           </div>
           <div className="flex flex-col">
